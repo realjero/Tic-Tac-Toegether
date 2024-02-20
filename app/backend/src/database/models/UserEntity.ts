@@ -1,22 +1,23 @@
 import {Column, Entity, PrimaryGeneratedColumn} from "typeorm";
 import {Length} from "class-validator";
+
 @Entity()
 export class UserEntity {
     @PrimaryGeneratedColumn()
     id: number
 
-    @Column()
+    @Column({ nullable: false })
     @Length(6, 64)
     username: string
 
-    @Column()
+    @Column({ nullable: false })
     @Length(8, 60)
     password: string
 
-    @Column({default: 1000})
+    @Column({default: 1000, nullable: false})
     elo: number
 
-    @Column({default: false})
+    @Column({default: false, nullable: false})
     isAdmin: boolean;
 
     constructor(username: string, password: string) {

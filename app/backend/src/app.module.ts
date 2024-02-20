@@ -6,6 +6,7 @@ import { AuthenticationModule } from './authentication/authentication.module';
 import { DatabaseModule } from './database/database.module';
 import {APP_GUARD} from "@nestjs/core";
 import {AuthenticationGuard} from "./authentication/guard/authentication/authentication.guard";
+import { UserModule } from './user/user.module';
 @Module({
     imports: [
         ServeStaticModule.forRoot({
@@ -13,6 +14,7 @@ import {AuthenticationGuard} from "./authentication/guard/authentication/authent
         }),
         AuthenticationModule,
         DatabaseModule,
+        UserModule,
     ],
     controllers: [AppController],
     providers: [ // All routes need authentication!

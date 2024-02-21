@@ -13,6 +13,10 @@ export class UserService {
         return this.userRepository.findOne({where: {username: username}})
     }
 
+    async findUserByUserId(userId: number): Promise<UserEntity | null> {
+        return this.userRepository.findOne({where: {id: userId}})
+    }
+    
     async saveUser(username: string, password: string): Promise<UserEntity> {
         return await this.userRepository.save(new UserEntity(username, password));
     }

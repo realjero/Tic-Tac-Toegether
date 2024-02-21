@@ -46,7 +46,7 @@ export class AuthenticationController {
             throw new UnauthorizedException();
 
         return {
-            access_token: await this.jwtService.signAsync({ username: user.username, sub: user.id })
+            access_token: await this.jwtService.signAsync({ username: user.username, userId: user.id })
         };
     }
 }

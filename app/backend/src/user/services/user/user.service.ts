@@ -5,6 +5,7 @@ import { GameResultService as GameResultServiceDatabase } from "../../../databas
 import {UserDTO} from "../../payload/UserDTO";
 import {raw} from "express";
 import {GameStatsDTO} from "../../payload/GameStatsDTO";
+import {UserEntity} from "../../../database/models/UserEntity";
 
 @Injectable()
 export class UserService {
@@ -42,5 +43,9 @@ export class UserService {
         }
 
         return new GameStatsDTO(totalGames, wins, looses, draws);
+    }
+
+    async updateUserName(userId, username: string): Promise<UserEntity | undefined> {
+        return this.userServiceDatabase.updateUser(userId, username);
     }
 }

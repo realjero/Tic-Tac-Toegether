@@ -2,13 +2,37 @@
 @tailwind components;
 @tailwind utilities;
 
+@layer base {
+    :root {
+        --text: 6 15 15;
+        --background: 244 250 251;
+        --primary: 68 143 151;
+        --secondary: 151 163 211;
+        --accent: 137 126 201;
+    }
+    .dark {
+        --text: 240 249 249;
+        --background: 4 10 11;
+        --primary: 104 179 187;
+        --secondary: 44 56 104;
+        --accent: 65 54 129;
+    }
+}
+
 @font-face {
     font-family: 'SF-Pro';
-    src: local('SF-Pro'), url(./fonts/SF-Pro.ttf) format('truetype');
+    src:
+        local('SF-Pro'),
+        url(./fonts/SF-Pro.ttf) format('truetype');
 }
 
 :root {
     font-family: 'SF-Pro';
+    background: rgb(238, 238, 238);
+    background-image: linear-gradient(to right bottom, #e5eded, #e3ecf0, #e4eaf2, #e8e8f2, #eee5ef);
+}
+
+:root:has(.dark) {
     background: rgb(34, 46, 49);
-    background: linear-gradient(160deg, #222e31, #212d32, #222c33, #252a34, #292733, #2b2632);
+    background-image: linear-gradient(to right bottom, #222e31, #212d33, #232b34, #262934, #2b2632);
 }

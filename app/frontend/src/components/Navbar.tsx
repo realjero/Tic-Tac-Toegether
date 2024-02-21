@@ -3,17 +3,35 @@ import {
     ChevronDownIcon,
     ChevronUpIcon
 } from '@heroicons/react/16/solid';
-import { BookOpenIcon, BuildingLibraryIcon, UserIcon } from '@heroicons/react/24/outline';
+import {
+    BookOpenIcon,
+    BuildingLibraryIcon,
+    MoonIcon,
+    SunIcon,
+    UserIcon
+} from '@heroicons/react/24/outline';
 import { useState } from 'react';
 
-const Navbar = () => {
+interface Props {
+    setDarkMode: (mode: boolean) => void;
+    darkMode: boolean;
+}
+
+const Navbar: React.FC<Props> = ({ setDarkMode, darkMode }) => {
     const [dropdownOpen, setDropdownOpen] = useState(false);
     const login = true;
     const elo = 1912;
     const username = 'John Doe';
 
+    const profile = [
+        { name: 'Profile', icon: <UserIcon width={24} className="me-2" /> },
+        { name: 'History', icon: <BookOpenIcon width={24} className="me-2" /> },
+        { name: 'Administration', icon: <BuildingLibraryIcon width={24} className="me-2" /> },
+        { name: 'Log out', icon: <ArrowLeftStartOnRectangleIcon width={24} className="me-2" /> }
+    ];
+
     return (
-        <nav className="fixed z-10 flex w-screen items-center justify-between text-white">
+        <nav className="text-text fixed z-10 flex w-screen items-center justify-between backdrop-blur-sm">
             <h1 className="m-5 text-3xl font-bold">TicTacToegether</h1>
             {login ? (
                 <div className="relative">
@@ -40,29 +58,24 @@ const Navbar = () => {
                                 />
                             )}
                         </div>
+                        <button onClick={() => setDarkMode(!darkMode)}>
+                            {darkMode ? <SunIcon width={24} /> : <MoonIcon width={24} />}
+                        </button>
                     </div>
 
                     {/* Dropdown */}
                     <div
-                        className={`absolute right-0 m-3 overflow-hidden rounded-md bg-[#1e2124] text-lg transition-all duration-300 ease-in-out ${
+                        className={`duration-400 bg-background absolute right-0 m-3 overflow-hidden rounded-md text-lg transition-[max-height] ease-in-out ${
                             dropdownOpen ? 'max-h-[400px]' : 'max-h-0'
                         }`}>
-                        <p className="flex cursor-pointer items-center border-b-[1px] border-b-gray-600 p-2">
-                            <UserIcon width={24} className="mx-1" />
-                            Profile
-                        </p>
-                        <p className="flex cursor-pointer items-center border-b-[1px] border-b-gray-600 p-2">
-                            <BookOpenIcon width={24} className="mx-1" />
-                            History
-                        </p>
-                        <p className="flex cursor-pointer items-center border-b-[1px] border-b-gray-600 p-2">
-                            <BuildingLibraryIcon width={24} className="mx-1" />
-                            Administration
-                        </p>
-                        <p className="flex cursor-pointer items-center p-2">
-                            <ArrowLeftStartOnRectangleIcon width={24} className="mx-1" />
-                            Log out
-                        </p>
+                        {profile.map((item, i) => (
+                            <p
+                                key={i}
+                                className={`flex cursor-pointer items-center ${i !== profile.length - 1 ? 'border-b-[1px]' : ''} border-b-gray-600 p-2`}>
+                                {item.icon}
+                                {item.name}
+                            </p>
+                        ))}
                     </div>
                 </div>
             ) : (

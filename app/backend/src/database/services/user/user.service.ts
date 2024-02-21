@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common';
 import {UserEntity} from "../../models/UserEntity";
 import {DataSource, Repository} from "typeorm";
 import {RegisterDTO} from "../../../authentication/payload/RegisterDTO";
+import {rethrow} from "@nestjs/core/helpers/rethrow";
 
 @Injectable()
 export class UserService {
@@ -29,5 +30,9 @@ export class UserService {
         user.username = username;
         await this.userRepository.save(user);
         return user;
+    }
+
+    async isUserAdmin(userId: number): Promise<boolean> {
+        return (await this.findUserByUserId(userId)).isAdmin;
     }
 }

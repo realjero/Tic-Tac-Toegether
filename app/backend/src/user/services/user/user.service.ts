@@ -50,7 +50,7 @@ export class UserService {
   }
 
   async updateUserName(
-    userId,
+    userId: number,
     username: string,
   ): Promise<UserEntity | undefined> {
     return await this.userServiceDatabase.updateUser(userId, username);
@@ -62,5 +62,12 @@ export class UserService {
 
   async getImage(userId: number) {
     return await this.userServiceDatabase.getImageAsByteArray(userId);
+  }
+
+  async updateUserPassword(
+    userId: number,
+    password: string,
+  ): Promise<UserEntity | undefined> {
+    return await this.userServiceDatabase.updateUserPassword(userId, password);
   }
 }

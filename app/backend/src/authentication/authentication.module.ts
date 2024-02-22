@@ -4,10 +4,11 @@ import { DatabaseModule } from '../database/database.module';
 import { PasswordService } from './services/password/password.service';
 import { JwtModule } from '@nestjs/jwt';
 import { jwtKey } from './constants';
+import { ValidationExceptionFilter } from './filters/validation-exception/validation-exception.filter';
 
 @Module({
   controllers: [AuthenticationController],
-  providers: [PasswordService],
+  providers: [PasswordService, ValidationExceptionFilter],
   imports: [
     DatabaseModule,
     JwtModule.register({
@@ -16,5 +17,6 @@ import { jwtKey } from './constants';
       signOptions: { expiresIn: '7d' },
     }),
   ],
+  exports: [PasswordService, ValidationExceptionFilter],
 })
 export class AuthenticationModule {}

@@ -4,35 +4,100 @@
 
 @layer base {
     :root {
-        --text: 6 15 15;
-        --background: 244 250 251;
-        --primary: 68 143 151;
-        --secondary: 151 163 211;
-        --accent: 137 126 201;
+        --text: #222222;
+
+        --background: #f4fafb;
+
+        --primary-50: #edf6f7;
+        --primary-100: #dcedef;
+        --primary-200: #b9dcdf;
+        --primary-300: #95cad0;
+        --primary-400: #72b8c0;
+        --primary-500: #4fa6b0;
+        --primary-600: #3f858d;
+        --primary-700: #2f646a;
+        --primary-800: #204346;
+        --primary-900: #102123;
+        --primary-950: #081112;
+
+        --secondary-50: #edeff7;
+        --secondary-100: #dbdff0;
+        --secondary-200: #b7bfe1;
+        --secondary-300: #93a0d2;
+        --secondary-400: #6f80c3;
+        --secondary-500: #4b60b4;
+        --secondary-600: #3c4d90;
+        --secondary-700: #2d3a6c;
+        --secondary-800: #1e2648;
+        --secondary-900: #0f1324;
+        --secondary-950: #080a12;
+
+        --accent-50: #efedf7;
+        --accent-100: #dedbf0;
+        --accent-200: #bdb7e1;
+        --accent-300: #9d93d2;
+        --accent-400: #7c6fc3;
+        --accent-500: #5b4bb4;
+        --accent-600: #493c90;
+        --accent-700: #372d6c;
+        --accent-800: #241e48;
+        --accent-900: #120f24;
+        --accent-950: #090812;
     }
     .dark {
-        --text: 240 249 249;
-        --background: 4 10 11;
-        --primary: 104 179 187;
-        --secondary: 44 56 104;
-        --accent: 65 54 129;
-    }
-}
+        --text: #f0f9f9;
 
-@font-face {
-    font-family: 'SF-Pro';
-    src:
-        local('SF-Pro'),
-        url(./fonts/SF-Pro.ttf) format('truetype');
+        --background: #222222;
+
+        --primary-50: #081112;
+        --primary-100: #102123;
+        --primary-200: #204346;
+        --primary-300: #2f646a;
+        --primary-400: #3f858d;
+        --primary-500: #4fa6b0;
+        --primary-600: #72b8c0;
+        --primary-700: #95cad0;
+        --primary-800: #b9dcdf;
+        --primary-900: #dcedef;
+        --primary-950: #edf6f7;
+
+        --secondary-50: #080a12;
+        --secondary-100: #0f1324;
+        --secondary-200: #1e2648;
+        --secondary-300: #2d3a6c;
+        --secondary-400: #3c4d90;
+        --secondary-500: #4b60b4;
+        --secondary-600: #6f80c3;
+        --secondary-700: #93a0d2;
+        --secondary-800: #b7bfe1;
+        --secondary-900: #dbdff0;
+        --secondary-950: #edeff7;
+
+        --accent-50: #090812;
+        --accent-100: #120f24;
+        --accent-200: #241e48;
+        --accent-300: #372d6c;
+        --accent-400: #493c90;
+        --accent-500: #5b4bb4;
+        --accent-600: #7c6fc3;
+        --accent-700: #9d93d2;
+        --accent-800: #bdb7e1;
+        --accent-900: #dedbf0;
+        --accent-950: #efedf7;
+    }
 }
 
 :root {
-    font-family: 'SF-Pro';
+    font-family: 'SF Pro Display', sans-serif;
     background: rgb(238, 238, 238);
     background-image: linear-gradient(to right bottom, #e5eded, #e3ecf0, #e4eaf2, #e8e8f2, #eee5ef);
+    margin: 0;
+    padding: 0;
 }
 
 :root:has(.dark) {
     background: rgb(34, 46, 49);
     background-image: linear-gradient(to right bottom, #222e31, #212d33, #232b34, #262934, #2b2632);
+    margin: 0;
+    padding: 0;
 }

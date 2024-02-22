@@ -53,6 +53,14 @@ export class UserService {
     userId,
     username: string,
   ): Promise<UserEntity | undefined> {
-    return this.userServiceDatabase.updateUser(userId, username);
+    return await this.userServiceDatabase.updateUser(userId, username);
+  }
+
+  async saveImage(userId: number, file: Express.Multer.File) {
+    return await this.userServiceDatabase.saveImage(userId, file.buffer);
+  }
+
+  async getImage(userId: number) {
+    return await this.userServiceDatabase.getImageAsByteArray(userId);
   }
 }

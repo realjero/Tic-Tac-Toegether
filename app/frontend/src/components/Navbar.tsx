@@ -1,16 +1,18 @@
 import {
-    ArrowLeftStartOnRectangleIcon,
-    ChevronDownIcon,
-    ChevronUpIcon
-} from '@heroicons/react/16/solid';
-import {
     BookOpenIcon,
     BuildingLibraryIcon,
     MoonIcon,
     SunIcon,
-    UserIcon
+    UserIcon,
+    ArrowLeftStartOnRectangleIcon,
+    ChevronDownIcon,
+    ChevronUpIcon
 } from '@heroicons/react/24/outline';
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
+import LoginModal from './LoginModal';
+import RegisterModal from './RegisterModal';
+import { Link } from 'react-router-dom';
+import { useUser } from '../hooks/UserContext';
 
 interface Props {
     setDarkMode: (mode: boolean) => void;
@@ -19,72 +21,124 @@ interface Props {
 
 const Navbar: React.FC<Props> = ({ setDarkMode, darkMode }) => {
     const [dropdownOpen, setDropdownOpen] = useState(false);
-    const login = true;
-    const elo = 1912;
-    const username = 'John Doe';
+    const dropdownMenu = useRef<HTMLDivElement>(null);
 
-    const profile = [
-        { name: 'Profile', icon: <UserIcon width={24} className="me-2" /> },
-        { name: 'History', icon: <BookOpenIcon width={24} className="me-2" /> },
-        { name: 'Administration', icon: <BuildingLibraryIcon width={24} className="me-2" /> },
-        { name: 'Log out', icon: <ArrowLeftStartOnRectangleIcon width={24} className="me-2" /> }
-    ];
+    const [loginModalOpen, setLoginModalOpen] = useState(false);
+    const [registerModalOpen, setRegisterModalOpen] = useState(false);
+
+    const { user, logout } = useUser();
+
+    const handleLogout = () => {
+        logout();
+        setDropdownOpen(false);
+    };
+
+    useEffect(() => {
+        const handleClick = (e: MouseEvent) => {
+            if (dropdownMenu.current && !dropdownMenu.current.contains(e.target as Node)) {
+                setDropdownOpen(false);
+            }
+        };
+
+        document.addEventListener('mousedown', handleClick);
+
+        return () => {
+            document.removeEventListener('mousedown', handleClick);
+        };
+    }, []);
 
     return (
-        <nav className="text-text fixed z-10 flex w-screen items-center justify-between backdrop-blur-sm">
-            <h1 className="m-5 text-3xl font-bold">TicTacToegether</h1>
-            {login ? (
+        <>
+            <LoginModal open={loginModalOpen} setOpen={setLoginModalOpen} />
+            <RegisterModal open={registerModalOpen} setOpen={setRegisterModalOpen} />
+            <nav className="fixed z-10 flex w-full items-center justify-between text-text backdrop-blur-sm">
+                <h1 className="m-5 text-xl font-bold sm:text-3xl">
+                    <Link to={'/'}>TicTacToegether</Link>
+                </h1>
                 <div className="relative">
                     <div className="mx-3 flex items-center gap-3">
-                        <p className="hidden cursor-pointer sm:block">{username}</p>
-                        <div className="relative">
-                            <span className="absolute -right-10 -top-3 me-2 rounded bg-green-100 px-2.5 py-0.5 text-xs font-medium text-green-800 dark:bg-green-900 dark:text-green-300">
-                                {elo}
-                            </span>
-                            <div className="h-10 w-10 cursor-pointer rounded-full bg-white"></div>
-                        </div>
-                        <div
-                            className="cursor-pointer"
-                            onClick={() => setDropdownOpen(!dropdownOpen)}>
-                            {dropdownOpen ? (
-                                <ChevronUpIcon
-                                    width={24}
-                                    className="transition-transform hover:scale-125"
-                                />
-                            ) : (
-                                <ChevronDownIcon
-                                    width={24}
-                                    className="transition-transform hover:scale-125"
-                                />
-                            )}
-                        </div>
-                        <button onClick={() => setDarkMode(!darkMode)}>
-                            {darkMode ? <SunIcon width={24} /> : <MoonIcon width={24} />}
-                        </button>
+                        {user ? (
+                            <>
+                                <p className="hidden cursor-pointer sm:block">{user.username}</p>
+                                <div className="relative">
+                                    <span className="absolute -right-10 -top-3 me-2 rounded bg-secondary-400 px-2.5 py-0.5 text-xs font-medium text-secondary-800">
+                                        {user.elo}
+                                    </span>
+                                    <div className="h-10 w-10 cursor-pointer rounded-full bg-white"></div>
+                                </div>
+                                <div
+                                    className="cursor-pointer"
+                                    onClick={() => setDropdownOpen(!dropdownOpen)}>
+                                    {dropdownOpen ? (
+                                        <ChevronUpIcon
+                                            width={24}
+                                            className="transition-transform hover:scale-125"
+                                        />
+                                    ) : (
+                                        <ChevronDownIcon
+                                            width={24}
+                                            className="transition-transform hover:scale-125"
+                                        />
+                                    )}
+                                </div>
+                                <DarkModeToggle setDarkMode={setDarkMode} darkMode={darkMode} />
+                            </>
+                        ) : (
+                            <>
+                                <button onClick={() => setLoginModalOpen(!loginModalOpen)}>
+                                    Sign in
+                                </button>
+                                <button
+                                    className="mx-0.5"
+                                    onClick={() => setRegisterModalOpen(!registerModalOpen)}>
+                                    Sign up
+                                </button>
+                                <DarkModeToggle setDarkMode={setDarkMode} darkMode={darkMode} />
+                            </>
+                        )}
                     </div>
 
                     {/* Dropdown */}
                     <div
-                        className={`duration-400 bg-background absolute right-0 m-3 overflow-hidden rounded-md text-lg transition-[max-height] ease-in-out ${
+                        className={`duration-400 fixed right-0 z-10 m-4 overflow-hidden rounded-md bg-background text-lg transition-[max-height] ease-in-out ${
                             dropdownOpen ? 'max-h-[400px]' : 'max-h-0'
-                        }`}>
-                        {profile.map((item, i) => (
-                            <p
-                                key={i}
-                                className={`flex cursor-pointer items-center ${i !== profile.length - 1 ? 'border-b-[1px]' : ''} border-b-gray-600 p-2`}>
-                                {item.icon}
-                                {item.name}
+                        }`}
+                        ref={dropdownMenu}>
+                        <p className="flex cursor-pointer items-center border-b-[1px] border-b-gray-600 px-4 py-3">
+                            <UserIcon width={24} className="me-2" />
+                            Profile
+                        </p>
+                        <p className="flex cursor-pointer items-center border-b-[1px] border-b-gray-600 px-4 py-3">
+                            <BookOpenIcon width={24} className="me-2" />
+                            History
+                        </p>
+                        {user?.isAdmin && (
+                            <p className="flex cursor-pointer items-center border-b-[1px] border-b-gray-600 px-4 py-3">
+                                <BuildingLibraryIcon width={24} className="me-2" />
+                                Administration
                             </p>
-                        ))}
+                        )}
+                        <p
+                            className="flex cursor-pointer items-center border-b-gray-600 px-4 py-3"
+                            onClick={handleLogout}>
+                            <ArrowLeftStartOnRectangleIcon width={24} className="me-2" />
+                            Log out
+                        </p>
                     </div>
                 </div>
-            ) : (
-                <div>
-                    <button className="m-3">Sign in</button>
-                    <button className="m-3 rounded-md border px-2 py-1">Sign up</button>
-                </div>
-            )}
-        </nav>
+            </nav>
+        </>
+    );
+};
+
+const DarkModeToggle: React.FC<{ setDarkMode: (mode: boolean) => void; darkMode: boolean }> = ({
+    setDarkMode,
+    darkMode
+}) => {
+    return (
+        <button onClick={() => setDarkMode(!darkMode)} className="px-1">
+            {darkMode ? <SunIcon width={32} /> : <MoonIcon width={32} />}
+        </button>
     );
 };
 

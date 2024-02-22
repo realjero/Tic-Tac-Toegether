@@ -50,4 +50,12 @@ export class UserService {
     const user = await this.findUserByUserId(userId);
     return !user ? undefined : user.image;
   }
+
+  async updateUserPassword(userId: number, newPassword: string) {
+    const user = await this.findUserByUserId(userId);
+    if (!user) return undefined;
+
+    user.password = newPassword;
+    return await this.userRepository.save(user);
+  }
 }

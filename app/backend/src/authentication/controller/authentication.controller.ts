@@ -12,7 +12,6 @@ import {
 import { RegisterDTO } from '../payload/RegisterDTO';
 import { UserService as UserServiceDatabase } from '../../database/services/user/user.service';
 import { PasswordService } from '../services/password/password.service';
-import * as bcrypt from 'bcrypt';
 import { JwtService } from '@nestjs/jwt';
 import { LoginDTO } from '../payload/LoginDTO';
 import { Public } from '../decorators/Public';
@@ -52,7 +51,7 @@ export class AuthenticationController {
 
     const user = await this.userServiceDatabase.saveUser(
       registerDTO.username,
-      await bcrypt.hash(registerDTO.password, 10),
+      await this.passwordService.hashPassword(registerDTO.password),
     );
     if (!user)
       throw new InternalServerErrorException('user could not be created');
@@ -69,7 +68,13 @@ export class AuthenticationController {
     const user = await this.userServiceDatabase.findUserByUsername(
       loginDTO.username,
     );
-    if (!user || !(await bcrypt.compare(loginDTO.password, user.password)))
+    if (
+      !user ||
+      !(await this.passwordService.arePasswordsEqual(
+        loginDTO.password,
+        user.password,
+      ))
+    )
       throw new UnauthorizedException();
 
     return {

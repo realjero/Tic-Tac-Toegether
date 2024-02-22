@@ -25,7 +25,7 @@ export class AuthenticationController {
     @Public()
     @HttpCode(HttpStatus.CREATED)
     @Post('register')
-    async register(@Body() registerDTO: RegisterDTO): Promise<void> {
+    async register(@Body() registerDTO: RegisterDTO): Promise<{ access_token: string }> {
         if (await this.userServiceDatabase.findUserByUsername(registerDTO.username) !== null)
             throw new BadRequestException("Username already exists");
 
@@ -35,6 +35,10 @@ export class AuthenticationController {
 
         const user = await this.userServiceDatabase.saveUser(registerDTO.username, await bcrypt.hash(registerDTO.password, 10));
         if (!user) throw new InternalServerErrorException("user could not be created");
+
+        return {
+            access_token: await this.jwtService.signAsync({ userId: user.id })
+        };
     }
 
     @Public()

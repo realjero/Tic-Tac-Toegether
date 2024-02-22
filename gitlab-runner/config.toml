@@ -1,0 +1,27 @@
+concurrent = 5
+check_interval = 0
+shutdown_timeout = 0
+
+[session_server]
+session_timeout = 1800
+
+[[runners]]
+name = "d28e0787d175"
+url = "https://git.thm.de/"
+id = 1310
+token = "3wTPLAHcXxPSRJPNc5Pq"
+token_obtained_at = 2024-02-21T13:06:58Z
+token_expires_at = 0001-01-01T00:00:00Z
+executor = "docker"
+[runners.cache]
+MaxUploadedArchiveSize = 0
+[runners.docker]
+tls_verify = false
+image = "docker"
+privileged = true
+disable_entrypoint_overwrite = false
+oom_kill_disable = false
+disable_cache = false
+volumes = ["/var/run/docker.sock:/var/run/docker.sock", "/builds:/builds", "/cache"]
+shm_size = 0
+network_mtu = 0

@@ -1,4 +1,9 @@
-import {ArgumentsHost, BadRequestException, Catch, ExceptionFilter} from '@nestjs/common';
+import {
+  ArgumentsHost,
+  BadRequestException,
+  Catch,
+  ExceptionFilter,
+} from '@nestjs/common';
 import { Response } from 'express';
 
 interface ValidationErrorResponse {
@@ -13,9 +18,10 @@ export class ValidationExceptionFilter implements ExceptionFilter {
     const ctx = host.switchToHttp();
     const response = ctx.getResponse<Response>();
     const status = exception.getStatus();
-    const exceptionResponse: any = exception.getResponse() as ValidationErrorResponse;
+    const exceptionResponse: any =
+      exception.getResponse() as ValidationErrorResponse;
 
-    let errors = {};
+    const errors = {};
 
     if (exceptionResponse.message && Array.isArray(exceptionResponse.message)) {
       exceptionResponse.message.forEach((message: string) => {

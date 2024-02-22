@@ -16,7 +16,8 @@ build:
   tags:
     - docker-runner
   script:
-    - docker build -t $CI_REGISTRY_IMAGE ./app/.
+    - docker build -t $CI_REGISTRY_IMAGE/$CI_COMMIT_REF_SLUG ./app/.
+  allow_failure: false
 
 
 frontend-lint:
@@ -29,9 +30,9 @@ frontend-lint:
   before_script: *docker-credentials
   script:
     - docker build -t frontend_test --target frontend_test ./app/.
-    - docker run --name frontend_test frontend_test npm run lint
-    - docker rm frontend_test
-    - docker rmi frontend_test
+    - docker run --rm --name frontend_test frontend_test npm run lint
+  allow_failure: false
+
 
 backend-lint:
   stage: quality_assurance
@@ -43,10 +44,8 @@ backend-lint:
   before_script: *docker-credentials
   script:
     - docker build -t backend_test --target backend_test ./app/.
-    - docker run --name backend_test backend_test npm run lint
-    - docker rm backend_test
-    - docker rmi backend_test
-  allow_failure: true
+    - docker run --rm --name backend_test backend_test npm run lint
+  allow_failure: false
 
 
 sonarqube:
@@ -56,6 +55,7 @@ sonarqube:
     - docker-runner
   script:
     - sonar-scanner
+  allow_failure: false
 
 
 trivy:
@@ -89,6 +89,7 @@ trivy:
     reports:
       container_scanning: gl-container-scanning-report.json
     expire_in: 1 week
+  allow_failure: false
 
 
 registry:
@@ -100,31 +101,5 @@ registry:
     - docker-runner
   before_script: *docker-credentials
   script:
-    - docker push $CI_REGISTRY_IMAGE
-
-deploy:
-  stage: deploy
-  image: docker
-  services:
-    - docker:dind
-  tags:
-    - docker-runner
-  before_script: *docker-credentials
-  script:
-    - docker stop tic-tac-toegether || true
-    - docker rm tic-tac-toegether || true
-    - docker pull $CI_REGISTRY_IMAGE
-    - docker run -d -p 3000:3000 --name tic-tac-toegether $CI_REGISTRY_IMAGE
-
-cleanup:
-  stage: cleanup
-  image: docker
-  services:
-    - docker:dind
-  tags:
-    - docker-runner
-  script:
-    - docker container prune -f
-    - docker image prune -f
-    - docker volume prune -f
-    - docker builder prune -f
+    - docker push $CI_REGISTRY_IMAGE/$CI_COMMIT_REF_SLUG
+  allow_failure: true

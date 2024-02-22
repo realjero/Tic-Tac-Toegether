@@ -17,6 +17,9 @@ export class UserEntity {
   @Column({ default: 1000, nullable: false })
   elo: number;
 
+  @Column({ type: 'blob', nullable: true })
+  image: Buffer;
+
   @Column({ default: false, nullable: false })
   isAdmin: boolean;
 

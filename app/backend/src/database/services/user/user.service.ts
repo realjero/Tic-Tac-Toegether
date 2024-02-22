@@ -28,11 +28,26 @@ export class UserService {
     if (!user) return undefined;
 
     user.username = username;
-    await this.userRepository.save(user);
-    return user;
+    return await this.userRepository.save(user);
   }
 
   async isUserAdmin(userId: number): Promise<boolean> {
     return (await this.findUserByUserId(userId)).isAdmin;
+  }
+
+  async saveImage(
+    userId: number,
+    buffer: Buffer,
+  ): Promise<UserEntity | undefined> {
+    const user = await this.findUserByUserId(userId);
+    if (!user) return undefined;
+
+    user.image = buffer;
+    return await this.userRepository.save(user);
+  }
+
+  async getImageAsByteArray(userId: number): Promise<Buffer | undefined> {
+    const user = await this.findUserByUserId(userId);
+    return !user ? undefined : user.image;
   }
 }

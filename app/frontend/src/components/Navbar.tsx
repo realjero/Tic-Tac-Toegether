@@ -9,10 +9,9 @@ import {
     ChevronUpIcon
 } from '@heroicons/react/24/outline';
 import { useEffect, useRef, useState } from 'react';
-import LoginModal from './LoginModal';
-import RegisterModal from './RegisterModal';
 import { Link } from 'react-router-dom';
 import { useUser } from '../hooks/UserContext';
+import { useModal } from '../hooks/ModalContext';
 
 interface Props {
     setDarkMode: (mode: boolean) => void;
@@ -23,8 +22,7 @@ const Navbar: React.FC<Props> = ({ setDarkMode, darkMode }) => {
     const [dropdownOpen, setDropdownOpen] = useState(false);
     const dropdownMenu = useRef<HTMLDivElement>(null);
 
-    const [loginModalOpen, setLoginModalOpen] = useState(false);
-    const [registerModalOpen, setRegisterModalOpen] = useState(false);
+    const { openModal } = useModal();
 
     const { user, logout } = useUser();
 
@@ -49,9 +47,7 @@ const Navbar: React.FC<Props> = ({ setDarkMode, darkMode }) => {
 
     return (
         <>
-            <LoginModal open={loginModalOpen} setOpen={setLoginModalOpen} />
-            <RegisterModal open={registerModalOpen} setOpen={setRegisterModalOpen} />
-            <nav className="fixed z-10 flex w-full items-center justify-between text-text backdrop-blur-sm">
+            <nav className="flex w-full items-center justify-between text-text backdrop-blur-sm">
                 <h1 className="m-5 text-xl font-bold sm:text-3xl">
                     <Link to={'/'}>TicTacToegether</Link>
                 </h1>
@@ -85,12 +81,8 @@ const Navbar: React.FC<Props> = ({ setDarkMode, darkMode }) => {
                             </>
                         ) : (
                             <>
-                                <button onClick={() => setLoginModalOpen(!loginModalOpen)}>
-                                    Sign in
-                                </button>
-                                <button
-                                    className="mx-0.5"
-                                    onClick={() => setRegisterModalOpen(!registerModalOpen)}>
+                                <button onClick={() => openModal('login')}>Sign in</button>
+                                <button className="mx-0.5" onClick={() => openModal('register')}>
                                     Sign up
                                 </button>
                                 <DarkModeToggle setDarkMode={setDarkMode} darkMode={darkMode} />

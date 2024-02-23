@@ -95,7 +95,7 @@
     padding: 0;
 }
 
-:root:has(.dark) {
+:root.dark {
     background: rgb(34, 46, 49);
     background-image: linear-gradient(to right bottom, #222e31, #212d33, #232b34, #262934, #2b2632);
     margin: 0;

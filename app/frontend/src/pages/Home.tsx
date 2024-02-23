@@ -1,6 +1,10 @@
+import { useModal } from '../hooks/ModalContext';
+
 function Home() {
+    const { openModal } = useModal();
+
     return (
-        <div className="flex min-h-[100dvh] items-center">
+        <div className="flex h-full grow items-center justify-center">
             <div className="w-full text-text xl:grid xl:grid-cols-2">
                 <div className="my-24 text-center xl:my-auto">
                     <h1 className="mb-6 text-4xl font-bold sm:text-6xl">
@@ -14,7 +18,7 @@ function Home() {
                         <b className="mx-1 animate-bounce">friends</b>.
                     </h4>
                     <div className="flex justify-center gap-14">
-                        <button className="rounded border border-primary-500 px-3 py-2">
+                        <button onClick={() => openModal('register')} className="rounded border border-primary-500 px-3 py-2">
                             Sign Up
                         </button>
                         <button className="rounded border border-accent-500 px-3 py-2">

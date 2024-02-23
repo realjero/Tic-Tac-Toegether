@@ -2,6 +2,7 @@ import { Outlet } from 'react-router-dom';
 import Navbar from './components/Navbar';
 import { useEffect, useState } from 'react';
 import { UserProvider } from './hooks/UserProvider';
+import { ModalProvider } from './hooks/ModalProvider';
 
 function Root() {
     const [darkMode, setDarkMode] = useState(false);
@@ -17,12 +18,20 @@ function Root() {
         mq.addEventListener('change', (evt) => setDarkMode(evt.matches));
     }, []);
 
+    useEffect(() => {
+        if (darkMode) {
+            document.documentElement.classList.add('dark');
+        } else {
+            document.documentElement.classList.remove('dark');
+        }
+    }, [darkMode]);
+
     return (
         <UserProvider>
-            <div className={`${darkMode ? 'dark' : ''}`}>
+            <ModalProvider>
                 <Navbar setDarkMode={setDarkMode} darkMode={darkMode} />
                 <Outlet />
-            </div>
+            </ModalProvider>
         </UserProvider>
     );
 }

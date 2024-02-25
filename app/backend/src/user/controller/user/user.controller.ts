@@ -48,6 +48,11 @@ export class UserController {
     @Put('own')
     @HttpCode(HttpStatus.NO_CONTENT)
     async updateOwnProfileUsername(@Request() req, @Body() updateUsernameDTO: UpdateUsernameDTO): Promise<void> {
+        if(await this.userService.doesUserNameExist(updateUsernameDTO.username))
+            throw new BadRequestException({
+                message: ['username: Username already exists'],
+            });
+
         const result: UserEntity | undefined = await this.userService.updateUserName(req.user.userId, updateUsernameDTO.username);
         if (!result) {
             throw new NotFoundException();

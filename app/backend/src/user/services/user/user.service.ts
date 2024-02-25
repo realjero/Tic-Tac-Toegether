@@ -8,66 +8,58 @@ import { UserEntity } from '../../../database/models/UserEntity';
 
 @Injectable()
 export class UserService {
-  constructor(
-    private userServiceDatabase: UserServiceDatabase,
-    private gameResultServiceDatabase: GameResultServiceDatabase,
-  ) {}
+    constructor(
+        private userServiceDatabase: UserServiceDatabase,
+        private gameResultServiceDatabase: GameResultServiceDatabase
+    ) {}
 
-  async transformUserIdToUserDTO(userId: number): Promise<UserDTO | undefined> {
-    const user = await this.userServiceDatabase.findUserByUserId(userId);
-    if (!user) return undefined;
+    async transformUserIdToUserDTO(userId: number): Promise<UserDTO | undefined> {
+        const user = await this.userServiceDatabase.findUserByUserId(userId);
+        if (!user) return undefined;
 
-    return new UserDTO(
-      user.username,
-      user.elo,
-      user.isAdmin,
-      await this.calculateUserStats(userId),
-    );
-  }
-
-  async calculateUserStats(userId: number): Promise<GameStatsDTO> {
-    const gamesWhereUserWasAPart =
-      await this.gameResultServiceDatabase.findGamesByUser(userId);
-
-    let draws = 0;
-    let wins = 0;
-    let looses = 0;
-    const totalGames = gamesWhereUserWasAPart.length;
-
-    for (const game of gamesWhereUserWasAPart) {
-      const winner = await game.winner;
-
-      if (!winner) {
-        draws++;
-      } else if (winner.id === userId) {
-        wins++;
-      } else {
-        looses++;
-      }
+        return new UserDTO(user.username, user.elo, user.isAdmin, await this.calculateUserStats(userId));
     }
 
-    return new GameStatsDTO(totalGames, wins, looses, draws);
-  }
+    async calculateUserStats(userId: number): Promise<GameStatsDTO> {
+        const gamesWhereUserWasAPart = await this.gameResultServiceDatabase.findGamesByUser(userId);
 
-  async updateUserName(
-    userId: number,
-    username: string,
-  ): Promise<UserEntity | undefined> {
-    return await this.userServiceDatabase.updateUser(userId, username);
-  }
+        let draws = 0;
+        let wins = 0;
+        let looses = 0;
+        const totalGames = gamesWhereUserWasAPart.length;
 
-  async saveImage(userId: number, file: Express.Multer.File) {
-    return await this.userServiceDatabase.saveImage(userId, file.buffer);
-  }
+        for (const game of gamesWhereUserWasAPart) {
+            const winner = await game.winner;
 
-  async getImage(userId: number) {
-    return await this.userServiceDatabase.getImageAsByteArray(userId);
-  }
+            if (!winner) {
+                draws++;
+            } else if (winner.id === userId) {
+                wins++;
+            } else {
+                looses++;
+            }
+        }
 
-  async updateUserPassword(
-    userId: number,
-    password: string,
-  ): Promise<UserEntity | undefined> {
-    return await this.userServiceDatabase.updateUserPassword(userId, password);
-  }
+        return new GameStatsDTO(totalGames, wins, looses, draws);
+    }
+
+    async updateUserName(userId: number, username: string): Promise<UserEntity | undefined> {
+        return await this.userServiceDatabase.updateUser(userId, username);
+    }
+
+    async saveImage(userId: number, file: Express.Multer.File) {
+        return await this.userServiceDatabase.saveImage(userId, file.buffer);
+    }
+
+    async getImageByUserId(userId: number) {
+        return await this.userServiceDatabase.getImageAsByteArrayByUserId(userId);
+    }
+
+    async getImageByUsername(username: string) {
+        return await this.userServiceDatabase.getImageAsByteArrayByUserId((await this.userServiceDatabase.findUserByUsername(username)).id);
+    }
+
+    async updateUserPassword(userId: number, password: string): Promise<UserEntity | undefined> {
+        return await this.userServiceDatabase.updateUserPassword(userId, password);
+    }
 }

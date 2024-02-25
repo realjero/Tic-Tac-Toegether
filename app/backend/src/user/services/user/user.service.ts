@@ -62,4 +62,8 @@ export class UserService {
     async updateUserPassword(userId: number, password: string): Promise<UserEntity | undefined> {
         return await this.userServiceDatabase.updateUserPassword(userId, password);
     }
+
+    async doesUserNameExist(username: string): Promise<boolean> {
+        return await this.userServiceDatabase.findUserByUsername(username) !== null;
+    }
 }

@@ -26,6 +26,8 @@ import { EloService } from '../services/elo/elo.service';
 import { GameOutcome } from '../model/GameOutcome';
 import { Game } from '../model/Game';
 import { UserEntity } from '../../database/models/UserEntity';
+import { UserEloRatingService } from '../../database/services/user-elo-rating/user-elo-rating.service';
+import { GameResultService } from '../../database/services/game-result/game-result.service';
 
 @UseGuards(WsAuthenticationGuard)
 @WebSocketGateway({
@@ -42,7 +44,9 @@ export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect {
         private matchmakingService: MatchmakingService,
         private userDatabaseService: UserService,
         private gameService: GameService,
-        private eloService: EloService
+        private eloService: EloService,
+        private userEloDatabaseService: UserEloRatingService,
+        private gameResultDatabaseService: GameResultService
     ) {}
 
     private async validateAndDecodeToken(client: Socket): Promise<any> {
@@ -73,9 +77,7 @@ export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect {
             const game = await this.gameService.removeGameByUserId(user.userId);
 
             if (game) {
-                const opponentUserId = game[1].user1Info.userId === client.data.user.userId
-                    ? game[1].user2Info.userId
-                    : game[1].user1Info.userId;
+                const opponentUserId = game[1].user1Info.userId === client.data.user.userId ? game[1].user2Info.userId : game[1].user1Info.userId;
 
                 await this.updateEloRatings(game[1], opponentUserId);
                 this.notifyGameAbort(game[0], opponentUserId);
@@ -112,7 +114,7 @@ export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect {
         });
     }
 
-    private emitMatchFound(socketId: string, gameId: string, userInfo: GameUserInfo, opponentDetails: UserEntity, startingPlayer: EGameSymbol) {
+    private async emitMatchFound(socketId: string, gameId: string, userInfo: GameUserInfo, opponentDetails: UserEntity, startingPlayer: EGameSymbol) {
         this.server
             .to(socketId)
             .emit(
@@ -121,7 +123,7 @@ export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect {
                     gameId,
                     EGameSymbol[userInfo.symbol],
                     opponentDetails.username,
-                    opponentDetails.elo,
+                    await this.userEloDatabaseService.getLatestEloRatingFromUserId(opponentDetails.id),
                     EGameSymbol[userInfo.symbol === EGameSymbol.X ? EGameSymbol.O : EGameSymbol.X],
                     EGameSymbol[startingPlayer]
                 )
@@ -132,7 +134,7 @@ export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect {
     async handleQueueEvent(client: Socket): Promise<void> {
         const userId = client.data.user.userId;
         console.log(`Client ${userId} with socketId: ${client.id} joined the queue`);
-        const result = await this.matchmakingService.enqueueUser(userId, await this.userDatabaseService.getEloFromUserId(userId), client.id);
+        const result = await this.matchmakingService.enqueueUser(userId, await this.userEloDatabaseService.getLatestEloRatingFromUserId(userId), client.id);
         result
             ? client.emit('queue', {
                   status: 'success',
@@ -168,18 +170,14 @@ export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect {
 
     async sendGameEnd(gameId: string, userId: number, isWin: boolean) {
         const game = await this.gameService.getGame(gameId);
-        const user1Elo = await this.userDatabaseService.getEloFromUserId(game.user1Info.userId);
-        const user2Elo = await this.userDatabaseService.getEloFromUserId(game.user2Info.userId);
+        const user1Elo = await this.userEloDatabaseService.getLatestEloRatingFromUserId(game.user1Info.userId);
+        const user2Elo = await this.userEloDatabaseService.getLatestEloRatingFromUserId(game.user2Info.userId);
 
         const gameEndDTO = new GameEndDTO(
             isWin ? EGameSymbol[game.user1Info.symbol] : undefined,
             isWin ? EGameEndDTO[EGameEndDTO.WIN] : EGameEndDTO[EGameEndDTO.DRAW],
-            game.user1Info.userId === userId
-                ? user1Elo
-                : user2Elo,
-            game.user1Info.userId === userId
-                ? user2Elo
-                : user1Elo
+            game.user1Info.userId === userId ? user1Elo : user2Elo,
+            game.user1Info.userId === userId ? user2Elo : user1Elo
         );
 
         this.server.to(`game-${gameId}`).emit('game.gameend', gameEndDTO);
@@ -189,34 +187,36 @@ export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect {
         if (!game) return;
 
         try {
-            const player1Elo = await this.userDatabaseService.getEloFromUserId(game.user1Info.userId);
-            const player2Elo = await this.userDatabaseService.getEloFromUserId(game.user2Info.userId);
+            const player1Elo = await this.userEloDatabaseService.getLatestEloRatingFromUserId(game.user1Info.userId);
+            const player2Elo = await this.userEloDatabaseService.getLatestEloRatingFromUserId(game.user2Info.userId);
 
             const player1NewElo = this.eloService.calculateNewRating(
                 player1Elo,
                 player2Elo,
-                winnerUserId === undefined
-                    ? GameOutcome.Draw
-                    : winnerUserId === game.user1Info.userId
-                        ? GameOutcome.Win
-                        : GameOutcome.Lose
+                await this.getGameOutcomeFromIds(winnerUserId, game.user1Info.userId)
             );
             const player2NewElo = this.eloService.calculateNewRating(
                 player2Elo,
                 player1Elo,
-                winnerUserId === undefined
-                    ? GameOutcome.Draw
-                    : winnerUserId === game.user2Info.userId
-                        ? GameOutcome.Win
-                        : GameOutcome.Lose
+                await this.getGameOutcomeFromIds(winnerUserId, game.user2Info.userId)
             );
 
-            await Promise.all([
+            /*await Promise.all([
+                //TODO change
                 this.userDatabaseService.updateEloFromUserId(game.user1Info.userId, player1NewElo),
                 this.userDatabaseService.updateEloFromUserId(game.user2Info.userId, player2NewElo),
-            ]);
+            ]);*/
+
+            const user1UpdatedEloEntry = await this.userEloDatabaseService.saveUserEloRating(game.user1Info.userId, player1NewElo);
+            const user2UpdatedEloEntry = await this.userEloDatabaseService.saveUserEloRating(game.user2Info.userId, player2NewElo);
+
+            await this.gameResultDatabaseService.saveGame(user1UpdatedEloEntry, user2UpdatedEloEntry, winnerUserId);
         } catch (error) {
-            console.error(`Failed to update Elo ratings for game ${game}: ${error}`);
+            console.error(`Failed to update Elo ratings for game ${game.gameBoard}: ${error}`);
         }
+    }
+
+    async getGameOutcomeFromIds(winnerId: number, userId: number): Promise<GameOutcome> {
+        return winnerId === undefined ? GameOutcome.Draw : winnerId === userId ? GameOutcome.Win : GameOutcome.Lose;
     }
 }

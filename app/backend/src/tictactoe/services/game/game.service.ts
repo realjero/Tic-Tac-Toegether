@@ -70,7 +70,8 @@ export class GameService {
         return false;
     }
 
-    async removeGameByUserId(userId: number): Promise<[string, Game] | undefined> { // user left the game ...
+    async removeGameByUserId(userId: number): Promise<[string, Game] | undefined> {
+        // user left the game ...
         for (const [gameId, game] of this.games.entries()) {
             if (game.user1Info.userId === userId || game.user2Info.userId === userId) {
                 const game = this.games.get(gameId);

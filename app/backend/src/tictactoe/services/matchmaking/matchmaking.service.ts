@@ -58,7 +58,6 @@ export class MatchmakingService {
         for (const bucketKey of potentialBuckets) {
             if (this.eloBuckets.has(bucketKey)) {
                 for (const candidateId of this.eloBuckets.get(bucketKey)) {
-                    console.log(this.users.get(candidateId).elo - elo);
                     if (candidateId !== userId && Math.abs(this.users.get(candidateId).elo - elo) <= this.bucketSize) {
                         console.log('Match found');
 

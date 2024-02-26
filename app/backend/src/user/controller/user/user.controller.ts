@@ -42,18 +42,18 @@ export class UserController {
     @Get('own')
     @HttpCode(HttpStatus.OK)
     async getOwnProfile(@Request() req): Promise<UserDTO> {
-        return this.getProfile(req.user.userId);
+        return this.getProfile(await this.getUserIdFromPromise(req));
     }
 
     @Put('own')
     @HttpCode(HttpStatus.NO_CONTENT)
     async updateOwnProfileUsername(@Request() req, @Body() updateUsernameDTO: UpdateUsernameDTO): Promise<void> {
-        if(await this.userService.doesUserNameExist(updateUsernameDTO.username))
+        if (await this.userService.doesUserNameExist(updateUsernameDTO.username))
             throw new BadRequestException({
                 message: ['username: Username already exists'],
             });
 
-        const result: UserEntity | undefined = await this.userService.updateUserName(req.user.userId, updateUsernameDTO.username);
+        const result: UserEntity | undefined = await this.userService.updateUserName(await this.getUserIdFromPromise(req), updateUsernameDTO.username);
         if (!result) {
             throw new NotFoundException();
         }
@@ -78,13 +78,13 @@ export class UserController {
             throw new UnsupportedMediaTypeException();
         }
 
-        const user = await this.userService.saveImage(req.user.userId, file);
+        const user = await this.userService.saveImage(await this.getUserIdFromPromise(req), file);
         if (user === undefined || user.image === undefined) throw new InternalServerErrorException();
     }
 
     @Get('own/image')
     async getOwnImage(@Request() req, @Res() res): Promise<void> {
-        return await this.getImage(req.user.userId, res);
+        return await this.getImage(await this.getUserIdFromPromise(req), res);
     }
 
     @Get('by-id/:userId/image')
@@ -131,7 +131,22 @@ export class UserController {
             });
         }
 
-        const user = await this.userService.updateUserPassword(req.user.userId, await this.passwordService.hashPassword(updatePasswordDTO.newPassword));
+        const user = await this.userService.updateUserPassword(
+            await this.getUserIdFromPromise(req),
+            await this.passwordService.hashPassword(updatePasswordDTO.newPassword)
+        );
         if (!user) throw new InternalServerErrorException('user could not be created');
+    }
+
+    @Get('own/history')
+    async getOwnHistory(@Req() req) {
+        const userId = await this.getUserIdFromPromise(req);
+        if (!userId) throw new NotFoundException();
+
+        return await this.userService.getGameHistory(userId);
+    }
+
+    private async getUserIdFromPromise(@Req() req): Promise<number> {
+        return (await (req.user instanceof Promise ? req.user : Promise.resolve(req.user))).userId;
     }
 }

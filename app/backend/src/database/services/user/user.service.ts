@@ -52,16 +52,4 @@ export class UserService {
         user.password = newPassword;
         return await this.userRepository.save(user);
     }
-
-    async getEloFromUserId(userId: number): Promise<number> {
-        return (await this.findUserByUserId(userId)).elo;
-    }
-
-    async updateEloFromUserId(userId: number, newEloRating: number): Promise<UserEntity> {
-        const user = await this.findUserByUserId(userId);
-        if (!user) return undefined;
-
-        user.elo = newEloRating;
-        return await this.userRepository.save(user);
-    }
 }

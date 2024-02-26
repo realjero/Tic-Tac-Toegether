@@ -14,9 +14,6 @@ export class UserEntity {
     @Length(8, 60)
     password: string;
 
-    @Column({ default: 1000, nullable: false })
-    elo: number;
-
     @Column({ type: 'blob', nullable: true })
     image: Buffer;
 

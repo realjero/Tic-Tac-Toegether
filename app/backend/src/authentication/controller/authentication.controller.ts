@@ -16,12 +16,14 @@ import { LoginDTO } from '../payload/LoginDTO';
 import { Public } from '../decorators/Public';
 import { ValidationExceptionFilter } from '../filters/validation-exception/validation-exception.filter';
 import { JwtHelperService } from '../services/jwt-helper/jwt-helper.service';
+import {UserEloRatingService as UserEloRatingServiceDatabase } from "../../database/services/user-elo-rating/user-elo-rating.service";
 
 @Controller('api/v1')
 @UseFilters(ValidationExceptionFilter)
 export class AuthenticationController {
     constructor(
         private userServiceDatabase: UserServiceDatabase,
+        private userEloServiceDatabase: UserEloRatingServiceDatabase,
         private passwordService: PasswordService,
         private jwtHelper: JwtHelperService
     ) {}
@@ -45,6 +47,8 @@ export class AuthenticationController {
 
         const user = await this.userServiceDatabase.saveUser(registerDTO.username, await this.passwordService.hashPassword(registerDTO.password));
         if (!user) throw new InternalServerErrorException('user could not be created');
+
+        await this.userEloServiceDatabase.saveUserEloRating(user.id, 1000); // init value for each user
 
         return {
             access_token: await this.jwtHelper.generateJWTToken(user.id),

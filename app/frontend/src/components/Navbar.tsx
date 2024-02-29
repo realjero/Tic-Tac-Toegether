@@ -1,5 +1,4 @@
 import {
-    BookOpenIcon,
     BuildingLibraryIcon,
     MoonIcon,
     SunIcon,
@@ -9,9 +8,10 @@ import {
     ChevronUpIcon
 } from '@heroicons/react/24/outline';
 import { useEffect, useRef, useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { useUser } from '../hooks/UserContext';
 import { useModal } from '../hooks/ModalContext';
+import UserProfileImage from './UserProfileImage';
 
 interface Props {
     setDarkMode: (mode: boolean) => void;
@@ -19,6 +19,7 @@ interface Props {
 }
 
 const Navbar: React.FC<Props> = ({ setDarkMode, darkMode }) => {
+    const navigate = useNavigate();
     const [dropdownOpen, setDropdownOpen] = useState(false);
     const dropdownMenu = useRef<HTMLDivElement>(null);
 
@@ -29,6 +30,11 @@ const Navbar: React.FC<Props> = ({ setDarkMode, darkMode }) => {
     const handleLogout = () => {
         logout();
         setDropdownOpen(false);
+    };
+
+    const handleProfile = () => {
+        setDropdownOpen(false);
+        navigate('/profile');
     };
 
     useEffect(() => {
@@ -47,7 +53,7 @@ const Navbar: React.FC<Props> = ({ setDarkMode, darkMode }) => {
 
     return (
         <>
-            <nav className="flex w-full items-center justify-between text-text backdrop-blur-sm">
+            <nav className="flex w-full items-center justify-between text-text">
                 <h1 className="m-5 text-xl font-bold sm:text-3xl">
                     <Link to={'/'}>TicTacToegether</Link>
                 </h1>
@@ -55,13 +61,15 @@ const Navbar: React.FC<Props> = ({ setDarkMode, darkMode }) => {
                     <div className="mx-3 flex items-center gap-3">
                         {user ? (
                             <>
-                                <p className="hidden cursor-pointer sm:block">{user.username}</p>
-                                <div className="relative">
-                                    <span className="absolute -right-10 -top-3 me-2 rounded bg-secondary-400 px-2.5 py-0.5 text-xs font-medium text-secondary-800">
-                                        {user.elo}
-                                    </span>
-                                    <div className="h-10 w-10 cursor-pointer rounded-full bg-white"></div>
-                                </div>
+                                <Link className={'flex items-center gap-3'} to={'/profile'}>
+                                    <p className="hidden sm:block">{user.username}</p>
+                                    <div className="relative">
+                                        <span className="absolute -right-10 -top-3 me-2 rounded bg-secondary-400 px-2.5 py-0.5 text-xs font-medium text-secondary-800">
+                                            {user.elo}
+                                        </span>
+                                        <UserProfileImage image={user.image} size={10} />
+                                    </div>
+                                </Link>
                                 <div
                                     className="cursor-pointer"
                                     onClick={() => setDropdownOpen(!dropdownOpen)}>
@@ -92,17 +100,14 @@ const Navbar: React.FC<Props> = ({ setDarkMode, darkMode }) => {
 
                     {/* Dropdown */}
                     <div
-                        className={`duration-400 fixed right-0 z-10 m-4 overflow-hidden rounded-md bg-background text-lg transition-[max-height] ease-in-out ${
+                        className={`duration-400 fixed right-0 z-10 m-4 overflow-hidden rounded-md bg-background text-lg shadow-lg transition-[max-height] ease-in-out ${
                             dropdownOpen ? 'max-h-[400px]' : 'max-h-0'
                         }`}
                         ref={dropdownMenu}>
-                        <p className="flex cursor-pointer items-center border-b-[1px] border-b-gray-600 px-4 py-3">
+                        <p onClick={handleProfile}
+                        className="flex cursor-pointer items-center border-b-[1px] border-b-gray-600 px-4 py-3">
                             <UserIcon width={24} className="me-2" />
                             Profile
-                        </p>
-                        <p className="flex cursor-pointer items-center border-b-[1px] border-b-gray-600 px-4 py-3">
-                            <BookOpenIcon width={24} className="me-2" />
-                            History
                         </p>
                         {user?.isAdmin && (
                             <p className="flex cursor-pointer items-center border-b-[1px] border-b-gray-600 px-4 py-3">

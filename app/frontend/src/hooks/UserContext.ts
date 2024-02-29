@@ -2,13 +2,14 @@ import { createContext, useContext } from "react";
 
 export interface User {
     username: string;
+    image?: string;
     elo: number;
     isAdmin: boolean;
     gameStats: {
         totalGames: number;
         wonGames: number;
         lostGames: number;
-        DrawGames: number;
+        drawGames: number;
     };
 }
 

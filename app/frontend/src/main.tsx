@@ -5,6 +5,7 @@ import './index.css';
 import { RouterProvider, createBrowserRouter } from 'react-router-dom';
 import ErrorPage from './pages/ErrorPage.tsx';
 import Home from './pages/Home.tsx';
+import Profile from './pages/Profile.tsx';
 
 const router = createBrowserRouter([
     {
@@ -17,9 +18,9 @@ const router = createBrowserRouter([
                 element: <Home />
             },
             {
-                path: '/game',
-                element: <p>hello world</p>
-            }
+                path: '/profile',
+                element: <Profile />
+            },
         ]
     }
 ]);

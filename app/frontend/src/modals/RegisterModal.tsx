@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { apiFetch } from '../lib/api';
 import { useUser } from '../hooks/UserContext';
 import { ModalProps } from '../hooks/ModalProvider';
+import { toast } from 'sonner';
 
 interface FormData {
     username: string;
@@ -57,12 +58,9 @@ const RegisterModal: React.FC<ModalProps> = ({ close }) => {
             const data = await result.json();
             if (!result.ok) {
                 setFormData({ ...formData, error: data.error });
-                if (data.error.username) {
-                    formTarget.username.focus();
-                }
-                if (data.error.password) {
-                    formTarget.password.focus();
-                }
+                if (data.error.username) formTarget.username.focus();
+
+                if (data.error.password) formTarget.password.focus();
                 return;
             }
 
@@ -71,10 +69,9 @@ const RegisterModal: React.FC<ModalProps> = ({ close }) => {
             setFormData(initalFormData);
         } catch (err: unknown) {
             if (err instanceof Error) {
-                setFormData({
-                    ...formData,
-                    error: { ...formData.error, password_confirmation: err.message }
-                });
+                toast.error(err.message);
+            } else {
+                toast.error('An error occurred. Please try again later.');
             }
         }
     };

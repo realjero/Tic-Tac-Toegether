@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { apiFetch } from '../lib/api';
 import { useUser } from '../hooks/UserContext';
 import { ModalProps } from '../hooks/ModalProvider';
+import { toast } from 'sonner';
 
 const LoginModal: React.FC<ModalProps> = ({ close }) => {
     const { login } = useUser();
@@ -38,7 +39,9 @@ const LoginModal: React.FC<ModalProps> = ({ close }) => {
             setFormData({ username: '', password: '', remember: false, error: '' });
         } catch (err: unknown) {
             if (err instanceof Error) {
-                setFormData({ ...formData, error: err.message });
+                toast.error(err.message);
+            } else {
+                toast.error('An error occurred. Please try again later.');
             }
         }
     };

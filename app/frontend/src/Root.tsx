@@ -3,6 +3,7 @@ import Navbar from './components/Navbar';
 import { useEffect, useState } from 'react';
 import { UserProvider } from './hooks/UserProvider';
 import { ModalProvider } from './hooks/ModalProvider';
+import { Toaster } from 'sonner';
 
 function Root() {
     const [darkMode, setDarkMode] = useState(false);
@@ -29,6 +30,7 @@ function Root() {
     return (
         <UserProvider>
             <ModalProvider>
+                <Toaster/>
                 <Navbar setDarkMode={setDarkMode} darkMode={darkMode} />
                 <Outlet />
             </ModalProvider>

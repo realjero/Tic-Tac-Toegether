@@ -6,6 +6,7 @@ import { RouterProvider, createBrowserRouter } from 'react-router-dom';
 import ErrorPage from './pages/ErrorPage.tsx';
 import Home from './pages/Home.tsx';
 import Profile from './pages/Profile.tsx';
+import Game from './pages/Game.tsx';
 
 const router = createBrowserRouter([
     {
@@ -21,6 +22,10 @@ const router = createBrowserRouter([
                 path: '/profile',
                 element: <Profile />
             },
+            {
+                path: '/play',
+                element: <Game />
+            }
         ]
     }
 ]);

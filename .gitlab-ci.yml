@@ -78,9 +78,9 @@ trivy:
     - echo $TRIVY_VERSION
     - wget --no-verbose https://github.com/aquasecurity/trivy/releases/download/v${TRIVY_VERSION}/trivy_${TRIVY_VERSION}_Linux-64bit.tar.gz -O - | tar -zxvf -
   script:
-    - ./trivy image --exit-code 0 --format template --template "@contrib/gitlab.tpl" -o gl-container-scanning-report.json $CI_REGISTRY_IMAGE
-    - ./trivy image --exit-code 0 --severity HIGH $CI_REGISTRY_IMAGE
-    - ./trivy image --exit-code 1 --severity CRITICAL $CI_REGISTRY_IMAGE
+    - ./trivy image --exit-code 0 --format template --template "@contrib/gitlab.tpl" -o gl-container-scanning-report.json $CI_REGISTRY_IMAGE/$CI_COMMIT_REF_SLUG
+    - ./trivy image --exit-code 0 --severity HIGH $CI_REGISTRY_IMAGE/$CI_COMMIT_REF_SLUG
+    - ./trivy image --exit-code 1 --severity CRITICAL $CI_REGISTRY_IMAGE/$CI_COMMIT_REF_SLUG
   cache:
     paths:
       - .trivycache/

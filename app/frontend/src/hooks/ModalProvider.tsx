@@ -5,10 +5,13 @@ import LoginModal from '../modals/LoginModal';
 import RegisterModal from '../modals/RegisterModal';
 import ChangeUsernameModal from '../modals/ChangeUsernameModal';
 import ChangePasswordModal from '../modals/ChangePasswordModal';
+import MatchmakingQueueModal from '../modals/MachmakingQueueModal';
 
 export interface ModalProps {
     close: () => void;
 }
+
+type CloseHandler = (() => void) | undefined;
 
 interface ModalContent {
     component: React.ReactNode;
@@ -32,6 +35,10 @@ const modals = (identifier: string, close: () => void) => {
         change_password: {
             component: <ChangePasswordModal close={close} />,
             title: 'Change your password'
+        },
+        queue: {
+            component: <MatchmakingQueueModal close={close} />,
+            title: 'Searching for a match'
         }
     };
 
@@ -41,26 +48,38 @@ const modals = (identifier: string, close: () => void) => {
 export const ModalProvider = ({ children }: { children: React.ReactNode }) => {
     const [open, setOpen] = useState(false);
     const [content, setContent] = useState<ModalContent | null>(null);
+    const [closeHandler, setCloseHandler] = useState<CloseHandler>(undefined);
 
-    const openModal = (identifier: string) => {
+    const openModal = (identifier: string, onClose?: () => void) => {
         const content = modals(identifier, handleClose);
         setContent(content);
         setOpen(true);
+        setCloseHandler(() => onClose);
+    };
+
+    const closeModal = () => {
+        setOpen(false);
+        setContent(null);
+        setCloseHandler(undefined);
     };
 
     const handleClose = () => {
         setOpen(false);
         setContent(null);
+        if (closeHandler) closeHandler();
+        setCloseHandler(undefined);
     };
 
     const handleDismiss = (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
         if (e.target === e.currentTarget) {
             setOpen(false);
+            if (closeHandler) closeHandler();
+            setCloseHandler(undefined);
         }
     };
 
     return (
-        <ModalContext.Provider value={{ openModal }}>
+        <ModalContext.Provider value={{ openModal, closeModal }}>
             {open && (
                 <div
                     onClick={handleDismiss}
@@ -70,7 +89,7 @@ export const ModalProvider = ({ children }: { children: React.ReactNode }) => {
                             <h2 className="text-2xl font-bold">{content?.title}</h2>
                             <button
                                 className="transition-transform hover:scale-105"
-                                onClick={() => setOpen(false)}>
+                                onClick={handleClose}>
                                 <XMarkIcon width={32} />
                             </button>
                         </div>

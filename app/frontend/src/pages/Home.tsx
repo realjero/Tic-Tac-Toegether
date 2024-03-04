@@ -1,7 +1,16 @@
+import { useGame } from '../hooks/GameContext';
 import { useModal } from '../hooks/ModalContext';
+import { useUser } from '../hooks/UserContext';
 
 function Home() {
     const { openModal } = useModal();
+    const { leaveQueue, joinQueue } = useGame();
+    const user = useUser();
+
+    const handleQueue = () => {
+        joinQueue();
+        openModal('queue', leaveQueue);
+    };
 
     return (
         <div className="flex h-full grow items-center justify-center">
@@ -18,9 +27,20 @@ function Home() {
                         <b className="mx-1 animate-bounce">friends</b>.
                     </h4>
                     <div className="flex justify-center gap-14">
-                        <button onClick={() => openModal('register')} className="rounded border border-primary-500 px-3 py-2">
-                            Sign Up
-                        </button>
+                        {user.user ? (
+                            <button
+                                onClick={handleQueue}
+                                className="rounded border border-primary-500 px-3 py-2">
+                                Play now
+                            </button>
+                        ) : (
+                            <button
+                                onClick={() => openModal('register')}
+                                className="rounded border border-primary-500 px-3 py-2">
+                                Sign Up
+                            </button>
+                        )}
+
                         <button className="rounded border border-accent-500 px-3 py-2">
                             Get Started
                         </button>

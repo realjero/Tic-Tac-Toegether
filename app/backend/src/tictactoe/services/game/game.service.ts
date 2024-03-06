@@ -59,8 +59,17 @@ export class GameService {
         return game.isPlayer1Turn ? EGameSymbol[game.user1Info.symbol] : EGameSymbol[game.user2Info.symbol];
     }
 
-    async getGame(gameId: string): Promise<Game | undefined> {
+    async getGameByGameId(gameId: string): Promise<Game | undefined> {
         return this.games.has(gameId) ? this.games.get(gameId) : undefined;
+    }
+
+    async getGameByUserId(userId: number): Promise<{ gameId: string, game: Game } | undefined> {
+        for (const [gameId, game] of this.games.entries()) {
+            if (game.user1Info.userId === userId || game.user2Info.userId === userId) {
+                return { gameId, game };
+            }
+        }
+        return undefined;
     }
 
     async isUserInAnyGame(userId: number): Promise<boolean> {
@@ -78,6 +87,15 @@ export class GameService {
                 this.games.delete(gameId);
                 return [gameId, game];
             }
+        }
+        return undefined;
+    }
+
+    async removeGameByGameId(gameId: string): Promise<[string, Game] | undefined> {
+        if (this.games.has(gameId)) {
+            const game = this.games.get(gameId);
+            this.games.delete(gameId);
+            return [gameId, game];
         }
         return undefined;
     }

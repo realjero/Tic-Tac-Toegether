@@ -69,7 +69,7 @@ export class MatchmakingService {
                             new GameUserInfo(candidateId, this.users.get(candidateId).socketId, EGameSymbol.O) // user 2
                         );
 
-                        const game = await this.gameService.getGame(gameId);
+                        const game = await this.gameService.getGameByGameId(gameId);
 
                         this.eventEmitter.emit(
                             'matchmaking.match-found',

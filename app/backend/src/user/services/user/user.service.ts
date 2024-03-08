@@ -7,6 +7,7 @@ import { GameStatsDTO } from '../../payload/GameStatsDTO';
 import { UserEntity } from '../../../database/models/UserEntity';
 import { GameHistoryDTO } from '../../payload/GameHistoryDTO';
 import { UserEloRatingService as UserEloRatingServiceDatabase } from '../../../database/services/user-elo-rating/user-elo-rating.service';
+import {UsernameEloDTO} from "../../../tictactoe/payload/UsernameEloDTO";
 
 @Injectable()
 export class UserService {
@@ -15,6 +16,18 @@ export class UserService {
         private gameResultServiceDatabase: GameResultServiceDatabase,
         private userEloDatabaseService: UserEloRatingServiceDatabase
     ) {}
+
+    async transformUsernameToUserDTO(username: string): Promise<UserDTO | undefined> {
+        const user = await this.userServiceDatabase.findUserByUsername(username);
+        if (!user) return undefined;
+
+        return new UserDTO(
+            user.username,
+            await this.userEloDatabaseService.getLatestEloRatingFromUserId(user.id),
+            user.isAdmin,
+            await this.calculateUserStats(user.id)
+        );
+    }
 
     async transformUserIdToUserDTO(userId: number): Promise<UserDTO | undefined> {
         const user = await this.userServiceDatabase.findUserByUserId(userId);
@@ -51,7 +64,11 @@ export class UserService {
         return new GameStatsDTO(totalGames, wins, looses, draws);
     }
 
-    async getGameHistory(userId: number): Promise<GameHistoryDTO[]> {
+    async getGameHistoryByUsername(username: string): Promise<GameHistoryDTO[]> {
+        const user = await this.userServiceDatabase.findUserByUsername(username);
+        return this.getGameHistoryById(user.id);
+    }
+    async getGameHistoryById(userId: number): Promise<GameHistoryDTO[]> {
         const gamesWhereUserWasAPart = await this.gameResultServiceDatabase.findGamesByUser(userId);
 
         return gamesWhereUserWasAPart.map(game => {
@@ -89,5 +106,13 @@ export class UserService {
 
     async doesUserNameExist(username: string): Promise<boolean> {
         return (await this.userServiceDatabase.findUserByUsername(username)) !== null;
+    }
+
+    async getAllUsers(): Promise<UsernameEloDTO[]> {
+        const users = await this.userServiceDatabase.getAllUsers();
+        return Promise.all(users.map(async user => {
+            const eloRating = await this.userEloDatabaseService.getLatestEloRatingFromUserId(user.id);
+            return new UsernameEloDTO(user.username, eloRating);
+        }));
     }
 }

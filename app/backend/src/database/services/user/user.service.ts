@@ -52,4 +52,8 @@ export class UserService {
         user.password = newPassword;
         return await this.userRepository.save(user);
     }
+
+    async getAllUsers(): Promise<UserEntity[]> {
+        return await this.userRepository.find();
+    }
 }

@@ -6,6 +6,7 @@ export class Game {
     user2Info: GameUserInfo;
 
     isPlayer1Turn: boolean;
+    startedWithPlayer1: boolean;
 
     GAME_BOARD_LENGTH: number = 3;
     gameBoard: number[][];
@@ -14,7 +15,7 @@ export class Game {
         this.user1Info = user1Info;
         this.user2Info = user2Info;
         this.isPlayer1Turn = isPlayer1Turn;
-
+        this.startedWithPlayer1 = isPlayer1Turn;
         this.gameBoard = Array.from({ length: this.GAME_BOARD_LENGTH }, () => Array(this.GAME_BOARD_LENGTH).fill(0));
     }
 

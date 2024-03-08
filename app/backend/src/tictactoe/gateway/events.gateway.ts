@@ -28,6 +28,7 @@ import { Game } from '../model/Game';
 import { UserEntity } from '../../database/models/UserEntity';
 import { UserEloRatingService } from '../../database/services/user-elo-rating/user-elo-rating.service';
 import { GameResultService } from '../../database/services/game-result/game-result.service';
+import {AdminPanelService} from "../services/admin-panel/admin-panel.service";
 
 @UseGuards(WsAuthenticationGuard)
 @WebSocketGateway({
@@ -46,7 +47,8 @@ export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect {
         private gameService: GameService,
         private eloService: EloService,
         private userEloDatabaseService: UserEloRatingService,
-        private gameResultDatabaseService: GameResultService
+        private gameResultDatabaseService: GameResultService,
+        private adminPanelService: AdminPanelService,
     ) {}
 
     private async validateAndDecodeToken(client: Socket): Promise<any> {
@@ -211,5 +213,15 @@ export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect {
 
     async getGameOutcomeFromIds(winnerId: number, userId: number): Promise<GameOutcome> {
         return winnerId === undefined ? GameOutcome.Draw : winnerId === userId ? GameOutcome.Win : GameOutcome.Lose;
+    }
+
+    @OnEvent('admin.queue')
+    async handleAdminQueueUpdate() {
+        this.server.emit('admin.queue', await this.adminPanelService.getMatchmakingQueue());
+    }
+
+    @OnEvent('admin.game')
+    async handleAdminGameUpdate() {
+        this.server.emit('admin.game', await this.adminPanelService.getAllGames());
     }
 }

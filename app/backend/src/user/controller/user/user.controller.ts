@@ -8,7 +8,6 @@ import {
     InternalServerErrorException,
     NotFoundException,
     Param,
-    ParseIntPipe,
     Put,
     Req,
     Request,
@@ -42,7 +41,7 @@ export class UserController {
     @Get('own')
     @HttpCode(HttpStatus.OK)
     async getOwnProfile(@Request() req): Promise<UserDTO> {
-        return this.getProfile(await this.getUserIdFromPromise(req));
+        return this.userService.transformUserIdToUserDTO(await this.getUserIdFromPromise(req));
     }
 
     @Put('own')
@@ -59,11 +58,11 @@ export class UserController {
         }
     }
 
-    @Get(':userId')
+    @Get(':username')
     @HttpCode(HttpStatus.OK)
     @UseGuards(IsAdminGuard)
-    async getProfile(@Param('userId', ParseIntPipe) requestedId: number): Promise<UserDTO> {
-        const result: UserDTO | undefined = await this.userService.transformUserIdToUserDTO(requestedId);
+    async getProfile(@Param('username') username: string): Promise<UserDTO> {
+        const result: UserDTO | undefined = await this.userService.transformUsernameToUserDTO(username);
         if (!result) {
             throw new NotFoundException();
         }
@@ -143,7 +142,20 @@ export class UserController {
         const userId = await this.getUserIdFromPromise(req);
         if (!userId) throw new NotFoundException();
 
-        return await this.userService.getGameHistory(userId);
+        return await this.userService.getGameHistoryById(userId);
+    }
+
+    @Get(':username/history')
+    @UseGuards(IsAdminGuard)
+    async getHistoryById(@Param('username') username: string) {
+        return await this.userService.getGameHistoryByUsername(username);
+    }
+
+
+    @Get()
+    @UseGuards(IsAdminGuard)
+    async getAllUsers() {
+        return this.userService.getAllUsers();
     }
 
     private async getUserIdFromPromise(@Req() req): Promise<number> {

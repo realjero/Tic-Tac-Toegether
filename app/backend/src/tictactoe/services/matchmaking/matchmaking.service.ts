@@ -28,6 +28,8 @@ export class MatchmakingService {
 
             await this.addUserToQueue(userId, { elo, socketId });
             await this.checkForMatches(userId, elo);
+
+            this.eventEmitter.emit('admin.queue');
         } catch (error) {
             console.error(`Error enqueuing user ${userId}: ${error}`);
             release();
@@ -114,6 +116,7 @@ export class MatchmakingService {
             return false;
         } finally {
             release();
+            this.eventEmitter.emit('admin.queue');
         }
         return true;
     }
@@ -129,5 +132,22 @@ export class MatchmakingService {
         if (bucket.size === 0) {
             this.eloBuckets.delete(bucketKey);
         }
+    }
+
+    async getMatchmakingQueue(): Promise<any> {
+        if(this.users.entries() === undefined)
+            return [];
+
+        let queueSnapshot = [];
+        for (const [userId, userInfo] of this.users.entries()) {
+            const bucketKey = this.getBucketKey(userInfo.elo);
+            queueSnapshot.push({
+                userId,
+                elo: userInfo.elo,
+                socketId: userInfo.socketId,
+                bucket: bucketKey,
+            });
+        }
+        return queueSnapshot;
     }
 }

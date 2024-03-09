@@ -58,7 +58,7 @@ export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect {
         const [bearer, actualToken] = token.split(' ');
         if (bearer !== 'Bearer' || !actualToken) throw new Error('Invalid token format');
 
-        return this.jwtHelperService.verifyJWTToken(actualToken);
+        return await this.jwtHelperService.verifyJWTToken(actualToken);
     }
 
     //Nest.js doesnt support guards at Lifecycle events!
@@ -74,12 +74,11 @@ export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect {
     //Nest.js doesnt support guards at Lifecycle events!
     async handleDisconnect(client: Socket) {
         try {
-            const user = await this.validateAndDecodeToken(client);
-            await this.matchmakingService.dequeueUser(user.userId);
-            const {gameId, game} = await this.gameService.getGameByUserId(user.userId);
-            console.log(game)
-            if (game) {
-                const opponentUserId = game.user1Info.userId === client.data.user.userId ? game.user2Info.userId : game.user1Info.userId;
+            await this.matchmakingService.dequeueUser(client.id);
+            const {gameId, game} = await this.gameService.getGameBySocketId(client.id);
+
+            if (game && gameId) {
+                const opponentUserId = game.user1Info.socketId === client.id ? game.user2Info.userId : game.user1Info.userId;
 
                 await this.updateEloRatings(game, opponentUserId);
                 await this.sendGameEnd(gameId, opponentUserId, true, "abort");

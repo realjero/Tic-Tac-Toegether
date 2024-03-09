@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import {Injectable, UnauthorizedException} from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { jwtKey } from '../../constants';
 
@@ -11,8 +11,12 @@ export class JwtHelperService {
     }
 
     async verifyJWTToken(token: string): Promise<any> {
-        return await this.jwtService.verifyAsync(token, {
-            secret: jwtKey.secret,
-        });
+        try {
+            return await this.jwtService.verifyAsync(token, {
+                secret: jwtKey.secret,
+            });
+        } catch (error) {
+            throw new UnauthorizedException('expired token');
+        }
     }
 }

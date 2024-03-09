@@ -100,19 +100,27 @@ export class MatchmakingService {
         return Math.floor(elo / this.bucketSize) * this.bucketSize;
     }
 
-    async dequeueUser(userId: number) {
+    async dequeueUser(socketId: string) {
         const release = await this.mutex.acquire();
         try {
-            if (!this.users.has(userId)) {
-                console.log(`User ${userId} is not in the queue.`);
-                release();
+            let userId: number | undefined = undefined;
+
+            // Find userId by socketId
+            for (let [key, value] of this.users.entries()) {
+                if (value.socketId === socketId) {
+                    userId = key;
+                    break;
+                }
+            }
+
+            if (userId === undefined) {
+                console.log(`Socket ID ${socketId} does not correspond to any queued user.`);
                 return false;
             }
 
             this.removeUserFromQueue(userId);
         } catch (error) {
-            console.error(`Error dequeue user ${userId}: ${error}`);
-            release();
+            console.error(`Error dequeue user with Socket ID ${socketId}: ${error}`);
             return false;
         } finally {
             release();
@@ -121,18 +129,24 @@ export class MatchmakingService {
         return true;
     }
 
+
     private removeUserFromQueue(userId: number): void {
         const userInfo = this.users.get(userId);
+        if (!userInfo) return; // Exit if no user info is found
+
         const bucketKey = this.getBucketKey(userInfo.elo);
         this.users.delete(userId);
 
         const bucket = this.eloBuckets.get(bucketKey);
-        bucket.delete(userId);
+        if (bucket) {
+            bucket.delete(userId);
 
-        if (bucket.size === 0) {
-            this.eloBuckets.delete(bucketKey);
+            if (bucket.size === 0) {
+                this.eloBuckets.delete(bucketKey);
+            }
         }
     }
+
 
     async getMatchmakingQueue(): Promise<any> {
         if(this.users.entries() === undefined)

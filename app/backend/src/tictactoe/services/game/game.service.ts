@@ -63,16 +63,16 @@ export class GameService {
     }
 
     async getGameByGameId(gameId: string): Promise<Game | undefined> {
-        return this.games.has(gameId) ? this.games.get(gameId) : undefined;
+        return this.games.has(gameId) ? this.games.get(gameId) : null;
     }
 
-    async getGameByUserId(userId: number): Promise<{ gameId: string, game: Game } | undefined> {
+    async getGameBySocketId(socketId: string): Promise<{ gameId: string, game: Game } | undefined> {
         for (const [gameId, game] of this.games.entries()) {
-            if (game.user1Info.userId === userId || game.user2Info.userId === userId) {
+            if (game.user1Info.socketId === socketId || game.user2Info.socketId === socketId) {
                 return { gameId, game };
             }
         }
-        return undefined;
+        return { gameId: null, game: null };
     }
 
     async isUserInAnyGame(userId: number): Promise<boolean> {

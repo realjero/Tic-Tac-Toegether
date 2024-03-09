@@ -26,6 +26,7 @@ export class WsAuthenticationGuard implements CanActivate {
             client.data.user = await this.jwtHelperService.verifyJWTToken(actualToken);
             return true;
         } catch (error) {
+            console.log(error)
             this.rejectConnection(client, 'Invalid token');
             return false;
         }

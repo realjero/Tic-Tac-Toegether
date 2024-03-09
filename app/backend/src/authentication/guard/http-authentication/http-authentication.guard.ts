@@ -24,11 +24,9 @@ export class HttpAuthenticationGuard implements CanActivate {
         if (!token) {
             throw new UnauthorizedException();
         }
-        request['user'] = this.jwtHelperService.verifyJWTToken(token);
-        try {
-        } catch {
-            throw new UnauthorizedException();
-        }
+
+        request['user'] = await this.jwtHelperService.verifyJWTToken(token);
+
         return true;
     }
 

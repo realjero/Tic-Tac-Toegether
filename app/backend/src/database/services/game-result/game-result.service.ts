@@ -28,7 +28,7 @@ export class GameResultService {
         const gameResultEntity = new GameResultEntity(
             user1NewEloEntry,
             user2NewEloEntry,
-            user1NewEloEntry.id === winnerId ? user1NewEloEntry.player : user2NewEloEntry.player
+            user1NewEloEntry.player.id === winnerId ? user1NewEloEntry.player : user2NewEloEntry.player
         );
         return await this.gameResultRepository.save(gameResultEntity);
     }

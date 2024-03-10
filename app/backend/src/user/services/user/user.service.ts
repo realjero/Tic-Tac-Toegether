@@ -1,12 +1,16 @@
-import { Injectable } from '@nestjs/common';
-import { UserService as UserServiceDatabase } from '../../../database/services/user/user.service';
-import { GameResultService as GameResultServiceDatabase } from '../../../database/services/game-result/game-result.service';
+import {Injectable} from '@nestjs/common';
+import {UserService as UserServiceDatabase} from '../../../database/services/user/user.service';
+import {
+    GameResultService as GameResultServiceDatabase
+} from '../../../database/services/game-result/game-result.service';
 
-import { UserDTO } from '../../payload/UserDTO';
-import { GameStatsDTO } from '../../payload/GameStatsDTO';
-import { UserEntity } from '../../../database/models/UserEntity';
-import { GameHistoryDTO } from '../../payload/GameHistoryDTO';
-import { UserEloRatingService as UserEloRatingServiceDatabase } from '../../../database/services/user-elo-rating/user-elo-rating.service';
+import {UserDTO} from '../../payload/UserDTO';
+import {GameStatsDTO} from '../../payload/GameStatsDTO';
+import {UserEntity} from '../../../database/models/UserEntity';
+import {GameHistoryDTO} from '../../payload/GameHistoryDTO';
+import {
+    UserEloRatingService as UserEloRatingServiceDatabase
+} from '../../../database/services/user-elo-rating/user-elo-rating.service';
 import {UsernameEloDTO} from "../../../tictactoe/payload/UsernameEloDTO";
 
 @Injectable()
@@ -71,9 +75,10 @@ export class UserService {
     async getGameHistoryById(userId: number): Promise<GameHistoryDTO[]> {
         const gamesWhereUserWasAPart = await this.gameResultServiceDatabase.findGamesByUser(userId);
 
-        return gamesWhereUserWasAPart.map(game => {
-            const me = game.player1.id === userId ? game.player1 : game.player2;
-            const opponent = game.player1.id === userId ? game.player2 : game.player1;
+        return await Promise.all(gamesWhereUserWasAPart.map(async (game) => {
+            const me = game.player1.player.id === userId ? game.player1 : game.player2;
+            const opponent = game.player1.player.id === userId ? game.player2 : game.player1;
+
             return new GameHistoryDTO(
                 game.created_at,
                 me.elo,
@@ -81,7 +86,7 @@ export class UserService {
                 opponent.player ? opponent.player.username : undefined,
                 game.winner ? game.winner.username : undefined
             );
-        });
+        }));
     }
 
     async updateUserName(userId: number, username: string): Promise<UserEntity | undefined> {
@@ -92,12 +97,11 @@ export class UserService {
         return await this.userServiceDatabase.saveImage(userId, file.buffer);
     }
 
-    async getImageByUserId(userId: number) {
-        return await this.userServiceDatabase.getImageAsByteArrayByUserId(userId);
-    }
-
     async getImageByUsername(username: string) {
-        return await this.userServiceDatabase.getImageAsByteArrayByUserId((await this.userServiceDatabase.findUserByUsername(username)).id);
+        const user = await this.userServiceDatabase.findUserByUsername(username);
+        return user
+            ? await this.userServiceDatabase.getImageAsByteArrayByUserId(user.id)
+            : undefined;
     }
 
     async updateUserPassword(userId: number, password: string): Promise<UserEntity | undefined> {

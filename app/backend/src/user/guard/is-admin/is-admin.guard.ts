@@ -8,7 +8,8 @@ export class IsAdminGuard implements CanActivate {
     async canActivate(context: ExecutionContext): Promise<boolean> {
         const request = context.switchToHttp().getRequest();
         const user = request.user;
-        if (!user || !(await this.userServiceDatabase.isUserAdmin(user.id))) {
+
+        if (!user || !(await this.userServiceDatabase.isUserAdmin(user.userId))) {
             throw new ForbiddenException('You need admin privileges to access this route');
         }
 

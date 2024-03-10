@@ -81,29 +81,7 @@ export class UserController {
         if (user === undefined || user.image === undefined) throw new InternalServerErrorException();
     }
 
-    @Get('own/image')
-    async getOwnImage(@Request() req, @Res() res): Promise<void> {
-        return await this.getImage(await this.getUserIdFromPromise(req), res);
-    }
-
-    @Get('by-id/:userId/image')
-    @UseGuards(IsAdminGuard)
-    async getImage(@Param('userId') userId: number, @Res() res): Promise<void> {
-        const image: Buffer = await this.userService.getImageByUserId(userId);
-        if (!image) {
-            throw new NotFoundException();
-        }
-
-        const imageFormat = this.utilsService.getImageFormat(image);
-        if (!imageFormat) {
-            throw new UnsupportedMediaTypeException();
-        }
-
-        res.type(imageFormat);
-        res.send(image);
-    }
-
-    @Get('by-username/:username/image')
+    @Get(':username/image')
     async getImageByUsername(@Param('username') username: string, @Res() res): Promise<void> {
         const image: Buffer = await this.userService.getImageByUsername(username);
         if (!image) {

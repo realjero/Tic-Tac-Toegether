@@ -39,15 +39,15 @@ function Profile() {
         const losses = [];
         const draws = [];
 
-        for (const item of history) {
+        for (const item of history.reverse()) {
             const { winner, timestamp } = item;
 
             if (winner === user?.username) {
                 wins.push({ x: timestamp, y: ++winSum });
-            } else if (winner !== user?.username) {
-                losses.push({ x: timestamp, y: ++lossSum });
-            } else {
+            } else if (winner === undefined) {
                 draws.push({ x: timestamp, y: ++drawSum });
+            } else {
+                losses.push({ x: timestamp, y: ++lossSum });
             }
         }
 

@@ -22,7 +22,6 @@ const UserProfileImage: React.FC<UserProfileImageProps> = ({ image, size, classN
             className={`rounded-full bg-text ${className}`}>
             <UserIcon
                 style={{ height: remSize, width: remSize }}
-                width={32}
                 className={`p-2 text-background`}
             />
         </div>

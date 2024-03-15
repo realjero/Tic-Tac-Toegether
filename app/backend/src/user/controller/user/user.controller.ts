@@ -28,7 +28,26 @@ import { UtilsService } from '../../services/utils/utils.service';
 import { ValidationExceptionFilter } from '../../../authentication/filters/validation-exception/validation-exception.filter';
 import { PasswordService } from '../../../authentication/services/password/password.service';
 import { UpdatePasswordDTO } from '../../payload/UpdatePasswordDTO';
+import {
+    ApiTags,
+    ApiOperation,
+    ApiBearerAuth,
+    ApiParam,
+    ApiBody,
+    ApiConsumes,
+    ApiNotFoundResponse,
+    ApiOkResponse,
+    ApiBadRequestResponse,
+    ApiNoContentResponse,
+    ApiForbiddenResponse,
+    ApiUnsupportedMediaTypeResponse
+} from '@nestjs/swagger';
+import {GameHistoryDTO} from "../../payload/GameHistoryDTO";
+import {UsernameEloDTO} from "../../../tictactoe/payload/UsernameEloDTO";
+import {AdminApiOperation} from "../../../custom-swagger-annotations/ApiAdminOperation";
 
+@ApiTags('User Profiles')
+@ApiBearerAuth()
 @Controller('api/v1/profiles')
 @UseFilters(ValidationExceptionFilter)
 export class UserController {
@@ -38,12 +57,24 @@ export class UserController {
         private passwordService: PasswordService
     ) {}
 
+    @ApiOperation({ summary: 'Get own profile' })
+    @ApiOkResponse({ type: UserDTO, description: 'Profile retrieved successfully' })
+    @ApiNotFoundResponse({ description: 'User not found' })
     @Get('own')
     @HttpCode(HttpStatus.OK)
     async getOwnProfile(@Request() req): Promise<UserDTO> {
-        return this.userService.transformUserIdToUserDTO(await this.getUserIdFromPromise(req));
+        const result: UserDTO | undefined = await this.userService.transformUserIdToUserDTO(await this.getUserIdFromPromise(req));
+        if (!result) {
+            throw new NotFoundException();
+        }
+        return result;
     }
 
+    @ApiOperation({ summary: 'Update own username' })
+    @ApiNoContentResponse({ description: 'Username updated successfully' })
+    @ApiBadRequestResponse({ description: 'Username already exists' })
+    @ApiNotFoundResponse({ description: 'User not found' })
+    @ApiBody({ type: UpdateUsernameDTO })
     @Put('own')
     @HttpCode(HttpStatus.NO_CONTENT)
     async updateOwnProfileUsername(@Request() req, @Body() updateUsernameDTO: UpdateUsernameDTO): Promise<void> {
@@ -58,6 +89,11 @@ export class UserController {
         }
     }
 
+    @AdminApiOperation('Get user profile by username', 'Retrieves the profile for a specific user by their username.')
+    @ApiParam({ name: 'username', type: 'string', required: true, description: 'The username of the user' })
+    @ApiOkResponse({ description: 'Profile retrieved successfully', type: UserDTO })
+    @ApiNotFoundResponse({ description: 'User not found' })
+    @ApiForbiddenResponse({ description: 'You are not allowed to query this route!' })
     @Get(':username')
     @HttpCode(HttpStatus.OK)
     @UseGuards(IsAdminGuard)
@@ -69,6 +105,21 @@ export class UserController {
         return result;
     }
 
+    @ApiOperation({ summary: 'Upload user image' })
+    @ApiConsumes('multipart/form-data')
+    @ApiBody({
+        schema: {
+            type: 'object',
+            properties: {
+                image: {
+                    type: 'string',
+                    format: 'binary',
+                },
+            },
+        },
+    })
+    @ApiNoContentResponse({ description: 'Image uploaded successfully' })
+    @ApiUnsupportedMediaTypeResponse({ description: 'Unsupported media type' })
     @Put('own/image')
     @HttpCode(HttpStatus.NO_CONTENT)
     @UseInterceptors(FileInterceptor('image'))
@@ -81,6 +132,10 @@ export class UserController {
         if (user === undefined || user.image === undefined) throw new InternalServerErrorException();
     }
 
+    @ApiOperation({ summary: 'Get user image by username' })
+    @ApiParam({ name: 'username', type: 'string', required: true, description: 'The username of the user' })
+    @ApiOkResponse({ description: 'Image retrieved successfully' })
+    @ApiNotFoundResponse({ description: 'User not found' })
     @Get(':username/image')
     async getImageByUsername(@Param('username') username: string, @Res() res): Promise<void> {
         const image: Buffer = await this.userService.getImageByUsername(username);
@@ -97,6 +152,10 @@ export class UserController {
         res.send(image);
     }
 
+    @ApiOperation({ summary: 'Update user password' })
+    @ApiBody({ type: UpdatePasswordDTO })
+    @ApiNoContentResponse({ description: 'Password updated successfully' })
+    @ApiBadRequestResponse({ description: 'Password does not meet security requirements' })
     @Put('own/password')
     @HttpCode(HttpStatus.NO_CONTENT)
     async updatePassword(@Req() req, @Body() updatePasswordDTO: UpdatePasswordDTO) {
@@ -115,6 +174,9 @@ export class UserController {
         if (!user) throw new InternalServerErrorException('user could not be created');
     }
 
+    @ApiOperation({ summary: 'Get own game history' })
+    @ApiOkResponse({ description: 'Game history retrieved successfully', type: GameHistoryDTO, isArray: true })
+    @ApiNotFoundResponse({ description: 'User not found' })
     @Get('own/history')
     async getOwnHistory(@Req() req) {
         const userId = await this.getUserIdFromPromise(req);
@@ -123,14 +185,18 @@ export class UserController {
         return await this.userService.getGameHistoryById(userId);
     }
 
+    @AdminApiOperation('Get game history by username', 'Retrieves the game history for a specific user by their username.')
+    @ApiParam({ name: 'username', type: 'string', required: true, description: 'The username of the user' })
+    @ApiOkResponse({ description: 'Game history retrieved successfully', type: GameHistoryDTO, isArray: true })
+    @ApiForbiddenResponse({ description: 'You are not allowed to query this route!' })
     @Get(':username/history')
     @UseGuards(IsAdminGuard)
     async getHistoryById(@Param('username') username: string) {
         return await this.userService.getGameHistoryByUsername(username);
     }
 
-
-    @Get()
+    @AdminApiOperation('Get all users', 'Retrieves all users along with their Elo rating.')
+    @ApiOkResponse({ description: 'Users retrieved successfully', type: [UsernameEloDTO], isArray: true })
     @UseGuards(IsAdminGuard)
     async getAllUsers() {
         return this.userService.getAllUsers();

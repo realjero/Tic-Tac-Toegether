@@ -1,6 +1,12 @@
 import { IsString, Length } from 'class-validator';
 import {ApiProperty} from "@nestjs/swagger";
 
+/**
+ * `UpdateUsernameDTO` is a data transfer object used for updating a user's username. It includes
+ * validation for the new username to ensure it is a string and falls within the specified character length limits.
+ *
+ * @class UpdateUsernameDTO
+ */
 export class UpdateUsernameDTO {
     @ApiProperty({
         description: 'The new username',

@@ -1,6 +1,12 @@
 import {UsernameEloSymbolDTO} from "./UsernameEloSymbolDTO";
 import {ApiProperty} from "@nestjs/swagger";
 
+/**
+ * `AdminGameItemDTO` is a data transfer object that encapsulates detailed information about a game,
+ * including the participants and the player who started the game, for use primarily in the admin panel.
+ *
+ * @class AdminGameItemDTO
+ */
 export class AdminGameItemDTO {
     @ApiProperty({
         description: 'User 1 information with username, Elo rating, and symbol',

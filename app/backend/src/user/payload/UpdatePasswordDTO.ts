@@ -1,6 +1,12 @@
 import { IsString, Length } from 'class-validator';
 import {ApiProperty} from "@nestjs/swagger";
 
+/**
+ * `UpdatePasswordDTO` is a data transfer object used for updating a user's password. It enforces
+ * constraints on the new password, including length and type, to ensure it meets security requirements.
+ *
+ * @class UpdatePasswordDTO
+ */
 export class UpdatePasswordDTO {
     @ApiProperty({
         description: 'The new password',

@@ -1,6 +1,13 @@
 import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
 import { Length } from 'class-validator';
 
+/**
+ * `UserEntity` represents a user in the system, including their username, password, profile image, and
+ * whether they are an administrator. It is mapped to a database table and includes validations for
+ * username and password lengths.
+ *
+ * @Entity Decorator that marks the class as an entity and maps it to a database table.
+ */
 @Entity()
 export class UserEntity {
     @PrimaryGeneratedColumn()

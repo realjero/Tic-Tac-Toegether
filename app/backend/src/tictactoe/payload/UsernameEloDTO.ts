@@ -1,14 +1,35 @@
 import {ApiProperty} from "@nestjs/swagger";
 
+/**
+ * A DTO (Data Transfer Object) that represents a username and their Elo rating.
+ */
 export class UsernameEloDTO {
-    @ApiProperty({ example: 'jane_doe', description: 'Username of the user' })
-    username: string;
+  /**
+   * The username of the user.
+   */
+  @ApiProperty({
+    example: 'jane_doe',
+    description: 'Username of the user',
+  })
+  username: string;
 
-    @ApiProperty({ example: 1400, description: 'Elo rating of the user' })
-    elo: number;
+  /**
+   * The Elo rating of the user.
+   */
+  @ApiProperty({
+    example: 1400,
+    description: 'Elo rating of the user',
+  })
+  elo: number;
 
-    constructor(username: string, elo: number) {
-        this.username = username;
-        this.elo = elo;
-    }
+  /**
+   * Creates a new instance of the `UsernameEloDTO` class.
+   *
+   * @param username - The username of the user.
+   * @param elo - The Elo rating of the user.
+   */
+  constructor(username: string, elo: number) {
+    this.username = username;
+    this.elo = elo;
+  }
 }

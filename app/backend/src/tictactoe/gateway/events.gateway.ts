@@ -29,6 +29,7 @@ import { UserEntity } from '../../database/models/UserEntity';
 import { UserEloRatingService } from '../../database/services/user-elo-rating/user-elo-rating.service';
 import { GameResultService } from '../../database/services/game-result/game-result.service';
 import {AdminPanelService} from "../services/admin-panel/admin-panel.service";
+import {ChatMessageDTO} from "../payload/ChatMessageDTO";
 
 /**
  * `EventsGateway` serves as a WebSocket gateway for real-time event handling in the application, particularly
@@ -196,13 +197,13 @@ export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect {
         const result = await this.matchmakingService.enqueueUser(userId, await this.userEloDatabaseService.getLatestEloRatingFromUserId(userId), client.id);
         result
             ? client.emit('queue', {
-                  status: 'success',
-                  data: 'Joined the queue successfully',
-              })
+                status: 'success',
+                data: 'Joined the queue successfully',
+            })
             : client.emit('queue', {
-                  status: 'failure',
-                  data: 'Queue could not be joined, you are already in the queue',
-              });
+                status: 'failure',
+                data: 'Queue could not be joined, you are already in the queue',
+            });
     }
 
     /**
@@ -234,7 +235,7 @@ export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect {
         const userId = client.data.user.userId;
 
         if (!this.gameService.move(data.gameId, data.move, userId)) {
-            client.emit('game.error', { message: 'Move not successful' });
+            client.emit('game.error', {message: 'Move not successful'});
             return;
         }
         const gameStateDTO = new GameStateDTO(this.gameService.getGameBoard(data.gameId), this.gameService.getNextPlayer(data.gameId));
@@ -346,5 +347,23 @@ export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect {
     @OnEvent('admin.game')
     async handleAdminGameUpdate() {
         this.server.emit('admin.game', await this.adminPanelService.getAllGames());
+    }
+
+    /**
+     * Handles incoming chat messages from clients. It retrieves the user information based on the user ID stored in the client's socket session.
+     * If the user is found, it broadcasts the chat message to all connected clients with the message, sender's username, and timestamp.
+     *
+     * @param data - An object containing the chat message.
+     * @param client - The socket instance representing the client connection.
+     */
+    @SubscribeMessage('game.chat')
+    async handleIncomingChatMessage(@MessageBody() data: { message: string }, @ConnectedSocket() client: Socket) {
+        const userId = client.data.user.userId;
+
+        const user = await this.userDatabaseService.findUserByUserId(userId)
+        if (!user)
+            return;
+
+        this.server.emit('game.chat', new ChatMessageDTO(data.message, user.username, new Date()));
     }
 }

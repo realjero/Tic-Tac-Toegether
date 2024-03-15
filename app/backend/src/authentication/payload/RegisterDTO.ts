@@ -1,6 +1,15 @@
 import { IsString, Length } from 'class-validator';
 import {ApiProperty} from "@nestjs/swagger";
 
+/**
+ * `RegisterDTO` is a data transfer object used for user registration. It contains `username` and `password`
+ * fields with additional validation rules such as minimum and maximum length constraints to ensure the
+ * data integrity and security requirements are met.
+ *
+ * @ApiProperty Decorators include metadata for Swagger UI documentation, specifying field requirements, and examples.
+ * @IsString Decorator ensures the fields are of type string, with custom error messages for clarity.
+ * @Length Decorator applies minimum and maximum length constraints to the fields, enhancing security and usability.
+ */
 export class RegisterDTO {
     @ApiProperty({
         description: 'The username of the user',

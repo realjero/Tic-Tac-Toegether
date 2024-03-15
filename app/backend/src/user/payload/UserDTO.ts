@@ -1,6 +1,13 @@
 import { GameStatsDTO } from './GameStatsDTO';
 import {ApiProperty} from "@nestjs/swagger";
 
+/**
+ * `UserDTO` is a data transfer object that encapsulates essential information about a user, including
+ * their username, Elo rating, admin status, and game statistics. It is used to represent user profiles
+ * in various parts of the application, especially when communicating user details to clients.
+ *
+ * @class UserDTO
+ */
 export class UserDTO {
     @ApiProperty({ example: 'john_doe', description: 'Username of the user' })
     username: string;

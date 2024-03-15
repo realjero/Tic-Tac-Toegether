@@ -1,8 +1,25 @@
 import { Injectable } from '@nestjs/common';
 import * as bcrypt from 'bcrypt';
 
+/**
+ * `PasswordService` is a service class dedicated to password-related operations, such as
+ * checking password security based on specified criteria, hashing passwords, and comparing
+ * hashed passwords for equality. It is designed to enhance security within the application
+ * by ensuring strong password policies and secure password storage and comparison.
+ *
+ * @Injectable Decorator that marks this class as a provider within the NestJS dependency injection system,
+ * allowing it to be injected into other classes as needed.
+ */
 @Injectable()
 export class PasswordService {
+    /**
+     * Evaluates the security of a given password based on predefined criteria: presence of at least one
+     * digit, one uppercase letter, one lowercase letter, and one symbol from an allowed set, without containing
+     * any unknown or disallowed characters.
+     *
+     * @param {string} password - The password string to be evaluated.
+     * @returns {boolean} - `true` if the password meets all the security criteria, otherwise `false`.
+     */
     public checkPasswordSecurity(password: string): boolean {
         // Initialize flags for different criteria
         let hasDigit: boolean = false;
@@ -32,10 +49,25 @@ export class PasswordService {
         return hasDigit && hasUppercase && hasLowercase && hasSymbol && !hasUnknownChar;
     }
 
+    /**
+     * Hashes a given password asynchronously using bcrypt with a specified number of salt rounds (in this case, 10).
+     * This method provides secure password hashing suitable for storing in a database.
+     *
+     * @param {string} password - The plain text password to be hashed.
+     * @returns {Promise<string>} - A promise that resolves to the hashed version of the password.
+     */
     async hashPassword(password: string): Promise<string> {
         return await bcrypt.hash(password, 10);
     }
 
+    /**
+     * Compares a plain text password against a hashed password asynchronously to check if they match.
+     * This is typically used for verifying user login attempts.
+     *
+     * @param {string} password1 - The plain text password to be compared.
+     * @param {string} password2 - The hashed password to compare against.
+     * @returns {Promise<boolean>} - A promise that resolves to `true` if the passwords match, otherwise `false`.
+     */
     async arePasswordsEqual(password1: string, password2: string) {
         return await bcrypt.compare(password1, password2);
     }

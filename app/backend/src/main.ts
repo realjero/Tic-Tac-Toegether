@@ -3,9 +3,11 @@ import { AppModule } from './app.module';
 import { ValidationPipe } from '@nestjs/common';
 import {DocumentBuilder, SwaggerModule} from "@nestjs/swagger";
 
+
 async function bootstrap() {
     const app = await NestFactory.create(AppModule);
 
+    // Configure Swagger for API documentation.
     const config = new DocumentBuilder()
         .setTitle('TicTacToegether-API Documentation')
         .setVersion('1.0')
@@ -13,7 +15,7 @@ async function bootstrap() {
         .build();
 
     const document = SwaggerModule.createDocument(app, config);
-    SwaggerModule.setup('api', app, document);
+    SwaggerModule.setup('api', app, document); // Serve the Swagger API documentation at the '/api' route.
 
     app.useGlobalPipes(
         new ValidationPipe({
@@ -25,4 +27,5 @@ async function bootstrap() {
 
     await app.listen(3000);
 }
+
 bootstrap();

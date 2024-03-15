@@ -2,6 +2,12 @@ import { Column, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn } from 't
 import { UserEntity } from './UserEntity';
 import { UserEloRatingEntity } from './UserEloRatingEntity';
 
+/**
+ * `GameResultEntity` represents the outcome of a game between two players, including who the players were
+ * and who won the game. It is mapped to a database table via TypeORM decorators.
+ *
+ * @Entity Decorator that marks the class as an entity and maps it to a database table.
+ */
 @Entity()
 export class GameResultEntity {
     @PrimaryGeneratedColumn()

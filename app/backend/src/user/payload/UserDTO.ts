@@ -18,13 +18,17 @@ export class UserDTO {
     @ApiProperty({ example: false, description: 'Whether the user has admin privileges' })
     isAdmin: boolean;
 
+    @ApiProperty({ example: new Date(), description: 'account creation date of the user' })
+    createdAt: Date;
+
     @ApiProperty({ type: GameStatsDTO, description: 'Game statistics for the user' })
     gameStats: GameStatsDTO;
 
-    constructor(username: string, elo: number, isAdmin: boolean, gameStats: GameStatsDTO) {
+    constructor(username: string, elo: number, isAdmin: boolean, createdAt: Date, gameStats: GameStatsDTO) {
         this.username = username;
         this.elo = elo;
         this.isAdmin = isAdmin;
         this.gameStats = gameStats;
+        this.createdAt = createdAt;
     }
 }

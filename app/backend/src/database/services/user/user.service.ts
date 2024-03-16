@@ -50,7 +50,7 @@ export class UserService {
      * @returns {Promise<UserEntity>} A promise that resolves to the newly created and saved `UserEntity`.
      */
     async saveUser(username: string, password: string): Promise<UserEntity> {
-        return await this.userRepository.save(new UserEntity(username, password));
+        return await this.userRepository.save(new UserEntity(username, password, new Date()));
     }
 
     /**

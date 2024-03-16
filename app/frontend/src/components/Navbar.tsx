@@ -37,6 +37,12 @@ const Navbar: React.FC<Props> = ({ setDarkMode, darkMode }) => {
         if (user) navigate(user?.username);
     };
 
+    const handleAdmin = () => {
+        setDropdownOpen(false);
+        navigate('/admin')
+    };
+
+
     useEffect(() => {
         const handleClick = (e: MouseEvent) => {
             if (dropdownMenu.current && !dropdownMenu.current.contains(e.target as Node)) {
@@ -111,7 +117,8 @@ const Navbar: React.FC<Props> = ({ setDarkMode, darkMode }) => {
                             Profile
                         </p>
                         {user?.isAdmin && (
-                            <p className="flex cursor-pointer items-center border-b-[1px] border-b-gray-600 px-4 py-3">
+                            <p onClick={handleAdmin}
+                                className="flex cursor-pointer items-center border-b-[1px] border-b-gray-600 px-4 py-3">
                                 <BuildingLibraryIcon width={24} className="me-2" />
                                 Administration
                             </p>

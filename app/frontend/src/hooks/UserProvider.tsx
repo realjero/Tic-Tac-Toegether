@@ -10,7 +10,8 @@ const socket = io('http://localhost:3000', { autoConnect: false });
 
 export const UserProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
     const navigate = useNavigate();
-    const [user, setUser] = useState<User | null | undefined>(undefined);
+    const [user, setUser] = useState<User | null>(null);
+    const [loading, setLoading] = useState(true);
 
     const connectSocket = (sessionToken: string) => {
         socket.auth = { token: `Bearer ${sessionToken}` };
@@ -46,16 +47,18 @@ export const UserProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
                     Authorization: `Bearer ${Cookies.get('sessionToken')}`
                 }
             });
-            const data = await result.json();
 
             if (!result.ok) {
                 disconnectSocket();
                 Cookies.remove('sessionToken');
                 setUser(null);
+                setLoading(false);
                 return;
             }
 
+            const data = await result.json();
             setUser(data);
+            setLoading(false);
 
             try {
                 const result = await apiFetch(`profiles/${data.username}/image`, {
@@ -93,9 +96,14 @@ export const UserProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         } else {
             disconnectSocket();
             Cookies.remove('sessionToken');
+            setLoading(false);
             setUser(null);
         }
     }, [fetchUser]);
+
+    if (loading) {
+        return <div>Loading...</div>;
+    }
 
     return (
         <UserContext.Provider value={{ user, login, logout, fetchUser, socket }}>

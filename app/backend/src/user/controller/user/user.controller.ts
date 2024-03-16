@@ -312,6 +312,7 @@ export class UserController {
      */
     @AdminApiOperation('Get all users', 'Retrieves all users along with their Elo rating.')
     @ApiOkResponse({ description: 'Users retrieved successfully', type: [UsernameEloDTO], isArray: true })
+    @Get()
     @UseGuards(IsAdminGuardHttp)
     async getAllUsers() {
         return this.userService.getAllUsers();

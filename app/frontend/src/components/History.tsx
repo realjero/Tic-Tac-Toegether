@@ -20,13 +20,13 @@ interface HistoryProps {
     username: string;
 }
 
-interface OpponentImages {
+export interface UserImages {
     [key: string]: string | undefined;
 }
 
 const History: React.FC<HistoryProps> = ({ history, username }) => {
     const headers = ['Date', 'Enemy', 'Winner', 'Result'];
-    const [opponentImages, setOpponentImages] = useState<OpponentImages>({});
+    const [opponentImages, setOpponentImages] = useState<UserImages>({});
     const sortedHistory = history.sort((a, b) => b.timestamp.getTime() - a.timestamp.getTime());
 
     const areDatesOnSameDay = (date1: Date, date2: Date) => {
@@ -38,9 +38,9 @@ const History: React.FC<HistoryProps> = ({ history, username }) => {
     };
 
     useEffect(() => {
-        const uniqueOpponentNames = new Set(history.map((game) => game.opponentName));
-        const opponentImages: OpponentImages = {};
-        uniqueOpponentNames.forEach(async (name) => {
+        const uniqueNames = new Set(history.map((game) => game.opponentName));
+        const userImages: UserImages = {};
+        uniqueNames.forEach(async (name) => {
             try {
                 const result = await apiFetch(`profiles/${name}/image`, {
                     method: 'GET',
@@ -50,21 +50,20 @@ const History: React.FC<HistoryProps> = ({ history, username }) => {
                 });
 
                 if (!result.ok) {
-                    opponentImages[name] = undefined;
+                    userImages[name] = undefined;
                     return;
                 }
 
                 const image = URL.createObjectURL(await result.blob());
 
-                opponentImages[name] = image;
+                userImages[name] = image;
             } catch (err: unknown) {
                 if (err instanceof Error) {
                     toast.error(err.message);
                 }
             }
-
-            setOpponentImages(opponentImages);
         });
+        setOpponentImages(userImages);
     }, [history]);
 
     return (

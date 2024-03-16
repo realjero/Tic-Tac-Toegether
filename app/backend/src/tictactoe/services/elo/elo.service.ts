@@ -1,5 +1,5 @@
-import { Injectable } from '@nestjs/common';
-import { GameOutcome } from '../../model/GameOutcome';
+import {Injectable} from '@nestjs/common';
+import {GameOutcome} from '../../model/GameOutcome';
 
 /**
  * `EloService` provides functionalities related to Elo rating calculations. It encapsulates the logic

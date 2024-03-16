@@ -28,9 +28,12 @@ export class GameResultEntity {
     @Column({ type: 'date', default: () => 'CURRENT_TIMESTAMP' })
     created_at: Date;
 
-    constructor(player1: UserEloRatingEntity, player2: UserEloRatingEntity, winner: UserEntity | null) {
+    constructor(player1: UserEloRatingEntity, player2: UserEloRatingEntity, winner: UserEntity | null, date?: Date) {
         this.player1 = player1;
         this.player2 = player2;
         this.winner = winner;
+
+        if(date)
+            this.created_at = date;
     }
 }

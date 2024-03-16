@@ -1,13 +1,25 @@
-import { ReactNode, useEffect, useState } from 'react';
+import { ReactNode, useCallback, useEffect, useState } from 'react';
 import { apiFetch } from '../lib/api';
 import Cookies from 'js-cookie';
 import { User, UserContext } from './UserContext';
 import { toast } from 'sonner';
 import { useNavigate } from 'react-router-dom';
+import { io } from 'socket.io-client';
+
+const socket = io('http://localhost:3000', { autoConnect: false });
 
 export const UserProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
     const navigate = useNavigate();
-    const [user, setUser] = useState<User | null>(null);
+    const [user, setUser] = useState<User | null | undefined>(undefined);
+
+    const connectSocket = (sessionToken: string) => {
+        socket.auth = { token: `Bearer ${sessionToken}` };
+        socket.connect();
+    };
+
+    const disconnectSocket = () => {
+        socket.disconnect();
+    };
 
     const login = async (token: string, remember: boolean) => {
         Cookies.set('sessionToken', token, {
@@ -15,16 +27,18 @@ export const UserProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
             sameSite: 'none',
             secure: true
         });
+        connectSocket(token);
         await fetchUser();
     };
 
     const logout = () => {
+        disconnectSocket();
         Cookies.remove('sessionToken');
         setUser(null);
         navigate('/');
     };
 
-    const fetchUser = async () => {
+    const fetchUser = useCallback(async () => {
         try {
             const result = await apiFetch('profiles/own', {
                 method: 'GET',
@@ -35,14 +49,16 @@ export const UserProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
             const data = await result.json();
 
             if (!result.ok) {
+                disconnectSocket();
                 Cookies.remove('sessionToken');
+                setUser(null);
                 return;
             }
 
             setUser(data);
 
             try {
-                const result = await apiFetch('profiles/own/image', {
+                const result = await apiFetch(`profiles/${data.username}/image`, {
                     method: 'GET',
                     headers: {
                         Authorization: `Bearer ${Cookies.get('sessionToken')}`
@@ -64,21 +80,25 @@ export const UserProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
             }
         } catch (err: unknown) {
             Cookies.remove('sessionToken');
+            setUser(null);
         }
-    };
+    }, []);
 
     useEffect(() => {
         const sessionToken = Cookies.get('sessionToken');
 
         if (sessionToken) {
             fetchUser();
+            connectSocket(sessionToken);
         } else {
+            disconnectSocket();
             Cookies.remove('sessionToken');
+            setUser(null);
         }
-    }, []); // Fetch user data only once when the component mounts
+    }, [fetchUser]);
 
     return (
-        <UserContext.Provider value={{ user, login, logout, fetchUser }}>
+        <UserContext.Provider value={{ user, login, logout, fetchUser, socket }}>
             {children}
         </UserContext.Provider>
     );

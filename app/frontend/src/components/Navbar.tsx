@@ -34,7 +34,7 @@ const Navbar: React.FC<Props> = ({ setDarkMode, darkMode }) => {
 
     const handleProfile = () => {
         setDropdownOpen(false);
-        navigate('/profile');
+        if (user) navigate(user?.username);
     };
 
     useEffect(() => {
@@ -61,7 +61,7 @@ const Navbar: React.FC<Props> = ({ setDarkMode, darkMode }) => {
                     <div className="mx-3 flex items-center gap-3">
                         {user ? (
                             <>
-                                <Link className={'flex items-center gap-3'} to={'/profile'}>
+                                <Link className={'flex items-center gap-3'} to={user.username}>
                                     <p className="hidden sm:block">{user.username}</p>
                                     <div className="relative">
                                         <span className="absolute -right-10 -top-3 me-2 rounded bg-secondary-400 px-2.5 py-0.5 text-xs font-medium text-secondary-800">
@@ -100,12 +100,13 @@ const Navbar: React.FC<Props> = ({ setDarkMode, darkMode }) => {
 
                     {/* Dropdown */}
                     <div
-                        className={`duration-400 fixed right-0 z-10 m-4 overflow-hidden rounded-md bg-background text-lg shadow-lg transition-[max-height] ease-in-out ${
+                        className={`duration-400 fixed right-0 z-50 m-4 overflow-hidden rounded-md bg-background text-lg shadow-lg transition-[max-height] ease-in-out ${
                             dropdownOpen ? 'max-h-[400px]' : 'max-h-0'
                         }`}
                         ref={dropdownMenu}>
-                        <p onClick={handleProfile}
-                        className="flex cursor-pointer items-center border-b-[1px] border-b-gray-600 px-4 py-3">
+                        <p
+                            onClick={handleProfile}
+                            className="flex cursor-pointer items-center border-b-[1px] border-b-gray-600 px-4 py-3">
                             <UserIcon width={24} className="me-2" />
                             Profile
                         </p>

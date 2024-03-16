@@ -52,6 +52,22 @@ export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect {
     @WebSocketServer()
     server: Server;
 
+    private adminClients = new Set<Socket>(); //used for admin events (admin.queue and admin.games)
+
+    /**
+     * Constructs an instance of `SomeService`, a service responsible for coordinating various aspects
+     * of the application's functionality. It integrates services related to JWT handling, matchmaking,
+     * user management, game management, Elo rating calculations, and administrative functions.
+     *
+     * @param {JwtHelperService} jwtHelperService - Service for JWT token generation and verification.
+     * @param {MatchmakingService} matchmakingService - Service responsible for handling user matchmaking logic.
+     * @param {UserService} userDatabaseService - Service for user-related database operations and logic.
+     * @param {GameService} gameService - Service for managing game sessions and game-related logic.
+     * @param {EloService} eloService - Service for calculating and managing Elo ratings for users.
+     * @param {UserEloRatingService} userEloDatabaseService - Service for managing user Elo ratings within the database.
+     * @param {GameResultService} gameResultDatabaseService - Service for recording and retrieving game results.
+     * @param {AdminPanelService} adminPanelService - Service for administrative functionalities, such as managing the matchmaking queue and viewing all games.
+     */
     constructor(
         private jwtHelperService: JwtHelperService,
         private matchmakingService: MatchmakingService,
@@ -90,6 +106,12 @@ export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect {
     async handleConnection(client: Socket) {
         try {
             const user = await this.validateAndDecodeToken(client);
+
+            const userEntity = await this.userDatabaseService.findUserByUserId(user.userId);
+
+            if(userEntity && userEntity.isAdmin)
+                this.adminClients.add(client);
+
             console.log(`Client connected: ${client.id} with user ID: ${user.userId}`);
         } catch (error) {
             this.rejectConnection(client, error.message);
@@ -104,6 +126,7 @@ export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect {
      */
     async handleDisconnect(client: Socket) {
         try {
+            this.adminClients.delete(client); //removes user from admin list (if he is an admin!
             await this.matchmakingService.dequeueUser(client.id);
             const {gameId, game} = await this.gameService.getGameBySocketId(client.id);
 
@@ -333,7 +356,14 @@ export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect {
      */
     @OnEvent('admin.queue')
     async handleAdminQueueUpdate() {
-        this.server.emit('admin.queue', await this.adminPanelService.getMatchmakingQueue());
+        try {
+         const queue = await this.adminPanelService.getMatchmakingQueue();
+            this.adminClients.forEach(client => {
+                client.emit('admin.queue', queue);
+            })
+        } catch (error) {
+            console.error(error);
+        }
     }
 
     /**
@@ -346,7 +376,14 @@ export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect {
      */
     @OnEvent('admin.game')
     async handleAdminGameUpdate() {
-        this.server.emit('admin.game', await this.adminPanelService.getAllGames());
+        try {
+            const games = await this.adminPanelService.getAllGames();
+            this.adminClients.forEach(client => {
+                client.emit('admin.games', games);
+            })
+        } catch (error) {
+            console.error(error);
+        }
     }
 
     /**

@@ -184,7 +184,6 @@ export class MatchmakingService {
 
             this.removeUserFromQueue(userId);
         } catch (error) {
-            console.error(`Error dequeue user with Socket ID ${socketId}: ${error}`);
             return false;
         } finally {
             release();

@@ -15,7 +15,7 @@ export interface User {
 }
 
 interface UserContextType {
-    user: User | null | undefined; // undefined is used to indicate that the user is still loading
+    user: User | null;
     login: (token: string, remember: boolean) => void;
     logout: () => void;
     fetchUser: () => Promise<void>;

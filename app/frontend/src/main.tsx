@@ -8,6 +8,7 @@ import Home from './pages/Home.tsx';
 import Profile from './pages/Profile.tsx';
 import Game from './pages/Game.tsx';
 import ProtectedRoute from './components/ProtectedRoute.tsx';
+import Admin from './pages/Admin.tsx';
 
 const router = createBrowserRouter([
     {
@@ -30,6 +31,14 @@ const router = createBrowserRouter([
             {
                 path: '/play',
                 element: <Game />
+            },
+            {
+                path: '/admin',
+                element: (
+                    <ProtectedRoute adminOnly={true}>
+                        <Admin />
+                    </ProtectedRoute>
+                )
             }
         ]
     }

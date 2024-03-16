@@ -50,6 +50,7 @@ export class UserService {
             user.username,
             await this.userEloDatabaseService.getLatestEloRatingFromUserId(user.id),
             user.isAdmin,
+            user.createdAt,
             await this.calculateUserStats(user.id)
         );
     }
@@ -68,6 +69,7 @@ export class UserService {
             user.username,
             await this.userEloDatabaseService.getLatestEloRatingFromUserId(userId),
             user.isAdmin,
+            user.createdAt,
             await this.calculateUserStats(userId)
         );
     }

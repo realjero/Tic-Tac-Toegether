@@ -1,6 +1,5 @@
 import React, { useEffect } from 'react';
 import { useUser } from '../hooks/UserContext';
-import ErrorPage from '../pages/ErrorPage';
 import { useNavigate } from 'react-router-dom';
 
 interface ProtectedRouteProps {
@@ -16,7 +15,7 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children, adminOnly }) 
         if (user === null || (adminOnly && !user?.isAdmin)) navigate('/');
     }, [user, adminOnly, navigate]);
 
-    return user === undefined ? <ErrorPage /> : children;
+    return children;
 };
 
 export default ProtectedRoute;

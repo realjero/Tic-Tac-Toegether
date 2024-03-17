@@ -1,5 +1,5 @@
 import { createContext, useContext } from 'react';
-import { Board, ChatData, GameData, GameState } from './GameProvider';
+import { Board, ChatItem, GameData, GameState } from '../types/types';
 
 interface GameContextProps {
     joinQueue: () => void;
@@ -9,7 +9,7 @@ interface GameContextProps {
     gameData: GameData | undefined;
     gameState: GameState | undefined;
     board: Board;
-    chat: ChatData[];
+    chat: ChatItem[];
     sendChat: (message: string) => void;
 }
 

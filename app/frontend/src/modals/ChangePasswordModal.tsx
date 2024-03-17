@@ -1,8 +1,7 @@
 import { useState } from 'react';
 import { ModalProps } from '../hooks/ModalProvider';
-import { apiFetch } from '../lib/api';
+import { updatePassword } from '../lib/api';
 import { useUser } from '../hooks/UserContext';
-import Cookies from 'js-cookie';
 import { toast } from 'sonner';
 import { EyeIcon, EyeSlashIcon } from '@heroicons/react/24/outline';
 
@@ -34,36 +33,21 @@ const ChangePasswordModal: React.FC<ModalProps> = ({ close }) => {
             return;
         }
 
-        try {
-            const result = await apiFetch('profiles/own/password', {
-                method: 'PUT',
-                headers: {
-                    'Content-Type': 'application/json',
-                    Authorization: `Bearer ${Cookies.get('sessionToken')}`
-                },
-                body: JSON.stringify({ newPassword: formData.password })
+        const result = await updatePassword(formData.password);
+        if (!result) return;
+        if (!result.ok) {
+            const data = await result.json();
+            setFormData({
+                ...formData,
+                error: { password: data.error.password, password_confirmation: '' }
             });
-
-            if (!result.ok) {
-                const data = await result.json();
-                setFormData({
-                    ...formData,
-                    error: { password: data.error.password, password_confirmation: '' }
-                });
-                formTarget['new-password'].focus();
-                return;
-            }
-
-            fetchUser();
-            close();
-            toast.success('Password changed successfully');
-        } catch (err: unknown) {
-            if (err instanceof Error) {
-                toast.error(err.message);
-            } else {
-                toast.error('An error occurred. Please try again later.');
-            }
+            formTarget['new-password'].focus();
+            return;
         }
+
+        fetchUser();
+        close();
+        toast.success('Password changed successfully');
     };
 
     return (

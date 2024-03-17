@@ -1,9 +1,8 @@
 import { useState } from 'react';
-import { apiFetch } from '../lib/api';
 import { useUser } from '../hooks/UserContext';
 import { ModalProps } from '../hooks/ModalProvider';
-import { toast } from 'sonner';
 import { EyeIcon, EyeSlashIcon } from '@heroicons/react/24/outline';
+import { login as loginApi } from '../lib/api';
 
 const LoginModal: React.FC<ModalProps> = ({ close }) => {
     const { login } = useUser();
@@ -18,34 +17,19 @@ const LoginModal: React.FC<ModalProps> = ({ close }) => {
     const handleLogin = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
 
-        try {
-            const result = await apiFetch('login', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({
-                    username: formData.username,
-                    password: formData.password
-                })
-            });
-            const data = await result.json();
+        const result = await loginApi(formData.username, formData.password);
+        if (!result) return;
 
-            if (!result.ok) {
-                setFormData({ ...formData, error: 'Invalid username or password.' });
-                return;
-            }
+        const data = await result.json();
 
-            login(data?.access_token, formData.remember);
-            close();
-            setFormData({ username: '', password: '', remember: false, error: '' });
-        } catch (err: unknown) {
-            if (err instanceof Error) {
-                toast.error(err.message);
-            } else {
-                toast.error('An error occurred. Please try again later.');
-            }
+        if (!result.ok) {
+            setFormData({ ...formData, error: 'Invalid username or password.' });
+            return;
         }
+
+        login(data?.access_token, formData.remember);
+        close();
+        setFormData({ username: '', password: '', remember: false, error: '' });
     };
 
     return (

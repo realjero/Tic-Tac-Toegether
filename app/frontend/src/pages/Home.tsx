@@ -2,11 +2,14 @@ import { useGame } from '../hooks/GameContext';
 import { useModal } from '../hooks/ModalContext';
 import { useUser } from '../hooks/UserContext';
 
-function Home() {
+const Home = () => {
     const { openModal } = useModal();
     const { leaveQueue, joinQueue } = useGame();
     const user = useUser();
 
+    /**
+     * Handles joining the matchmaking queue and opening the queue modal.
+     */
     const handleQueue = () => {
         joinQueue();
         openModal('queue', leaveQueue);

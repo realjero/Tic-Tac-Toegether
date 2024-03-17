@@ -8,6 +8,10 @@ interface StatisticsChartProps {
 const StatisticsChart: React.FC<StatisticsChartProps> = ({ data }) => {
     const [zoomDomain, setZoomDomain] = useState<undefined>(undefined);
 
+    /**
+     * Handles zooming functionality of the statistics chart.
+     * @param {undefined} domain - The zoom domain.
+     */
     const handleZoom = (domain: undefined) => {
         setZoomDomain(domain);
     };

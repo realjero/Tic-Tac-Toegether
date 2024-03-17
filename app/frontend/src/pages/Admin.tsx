@@ -4,11 +4,15 @@ import GameData from '../components/admin/GameData';
 import { useUser } from '../hooks/UserContext.ts';
 import { Link, useLocation } from 'react-router-dom';
 
-function Admin() {
+const Admin = () => {
     const { socket } = useUser();
     const location = useLocation();
     const tab = new URLSearchParams(location.search).get('tab');
 
+    /**
+     * Establishes a socket connection when the component is mounted
+     * and disconnects it when the component is unmounted.
+     */
     useEffect(() => {
         socket.connect();
         return () => {

@@ -8,6 +8,10 @@ interface LineChartProps {
 const LineChart: React.FC<LineChartProps> = ({ data }) => {
     const [zoomDomain, setZoomDomain] = useState<undefined>(undefined);
 
+    /**
+     * Handles zooming functionality of the line chart.
+     * @param {undefined} domain - The zoom domain.
+     */
     const handleZoom = (domain: undefined) => {
         setZoomDomain(domain);
     };

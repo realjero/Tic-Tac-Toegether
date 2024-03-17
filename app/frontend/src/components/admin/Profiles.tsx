@@ -5,12 +5,15 @@ import { useUser } from '../../hooks/UserContext';
 import { Link } from 'react-router-dom';
 import { UserImages, UserProfileItem } from '../../types/types';
 
-function Profiles() {
+const Profiles = () => {
     const { user } = useUser();
     const [users, setUsers] = useState<UserProfileItem[]>([]);
     const [images, setImages] = useState<UserImages>({});
     const headers = ['', 'Elo'];
 
+    /**
+     * Fetches user profiles from the server and sets the state with the retrieved data.
+     */
     useEffect(() => {
         const fetchUsers = async () => {
             const result = await getProfiles();
@@ -24,6 +27,9 @@ function Profiles() {
         fetchUsers();
     }, [user]);
 
+    /**
+     * Fetches profile images of users and sets the state with the retrieved images.
+     */
     useEffect(() => {
         if (users.length === 0) {
             return;

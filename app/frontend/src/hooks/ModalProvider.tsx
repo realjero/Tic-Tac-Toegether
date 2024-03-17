@@ -7,17 +7,41 @@ import ChangeUsernameModal from '../modals/ChangeUsernameModal';
 import ChangePasswordModal from '../modals/ChangePasswordModal';
 import MatchmakingQueueModal from '../modals/MachmakingQueueModal';
 
+/**
+ * Props for the modal component.
+ */
 export interface ModalProps {
+    /**
+     * Function to close the modal.
+     */
     close: () => void;
 }
 
+/**
+ * Type representing a close handler function or undefined.
+ */
 type CloseHandler = (() => void) | undefined;
 
+/**
+ * Interface representing the content of a modal.
+ */
 interface ModalContent {
+    /**
+     * The component to render inside the modal.
+     */
     component: React.ReactNode;
+    /**
+     * The title of the modal.
+     */
     title: string;
 }
 
+/**
+ * Function to retrieve the content of a modal based on its identifier.
+ * @param {string} identifier - The identifier of the modal.
+ * @param {() => void} close - Function to close the modal.
+ * @returns {React.FC} - The component representing the modal content.
+ */
 const modals = (identifier: string, close: () => void) => {
     const modalComponents: { [key: string]: ModalContent } = {
         register: {
@@ -45,11 +69,16 @@ const modals = (identifier: string, close: () => void) => {
     return modalComponents[identifier] || <p>modal not found</p>;
 };
 
-export const ModalProvider = ({ children }: { children: React.ReactNode }) => {
+export const ModalProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
     const [open, setOpen] = useState(false);
     const [content, setContent] = useState<ModalContent | null>(null);
     const [closeHandler, setCloseHandler] = useState<CloseHandler>(undefined);
 
+    /**
+     * Opens a modal with the specified identifier and optional onClose handler.
+     * @param {string} identifier - The identifier of the modal.
+     * @param {() => void} [onClose] - Optional handler to be called when the modal is closed.
+     */
     const openModal = (identifier: string, onClose?: () => void) => {
         const content = modals(identifier, handleClose);
         setContent(content);
@@ -57,12 +86,18 @@ export const ModalProvider = ({ children }: { children: React.ReactNode }) => {
         setCloseHandler(() => onClose);
     };
 
+    /**
+     * Closes the currently open modal.
+     */
     const closeModal = () => {
         setOpen(false);
         setContent(null);
         setCloseHandler(undefined);
     };
 
+    /**
+     * Handles the closing of the modal.
+     */
     const handleClose = () => {
         setOpen(false);
         setContent(null);
@@ -70,6 +105,10 @@ export const ModalProvider = ({ children }: { children: React.ReactNode }) => {
         setCloseHandler(undefined);
     };
 
+    /**
+     * Handles modal dismissal when clicking outside the modal content.
+     * @param {React.MouseEvent<HTMLDivElement, MouseEvent>} e - The mouse event.
+     */
     const handleDismiss = (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
         if (e.target === e.currentTarget) {
             setOpen(false);

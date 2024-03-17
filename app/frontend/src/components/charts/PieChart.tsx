@@ -10,6 +10,10 @@ interface PieChartProps {
 const PieChart: React.FC<PieChartProps> = ({ wins, losses, draws }) => {
     const total: number = wins + losses + draws;
 
+    /**
+     * Generates data for the pie chart based on the number of wins, losses, and draws.
+     * @returns {Array<{ x: string; y: number }>} - Data for the pie chart.
+     */
     const data = () => {
         const data = [];
         if (total === 0) data.push({ x: 'No games played yet', y: 1 });
@@ -20,6 +24,10 @@ const PieChart: React.FC<PieChartProps> = ({ wins, losses, draws }) => {
         return data;
     };
 
+    /**
+     * Generates colors for segments of the pie chart based on the number of wins, losses, and draws.
+     * @returns {string[]} - Colors for pie chart segments.
+     */
     const colors = () => {
         const colors = [];
         if (total === 0 || wins > 0) colors.push('var(--accent-500)');

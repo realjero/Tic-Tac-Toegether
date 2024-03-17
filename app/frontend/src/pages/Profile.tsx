@@ -28,6 +28,9 @@ const Profile = () => {
 
     const [history, setHistory] = useState<HistoryItem[]>([]);
 
+    /**
+     * Fetch user profile and history on component mount or username change.
+     */
     useEffect(() => {
         if (queryUser) return;
         if (!username) return;
@@ -71,6 +74,9 @@ const Profile = () => {
         fetchHistory();
     }, [navigate, queryUser, user?.username, username]);
 
+    /**
+     * Handle profile image upload.
+     */
     useEffect(() => {
         const handleProfileUpload = async () => {
             if (!image) return;

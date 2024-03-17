@@ -14,7 +14,7 @@ const initialBoard: Board = {
     nextTurn: undefined
 };
 
-export const GameProvider = ({ children }: { children: React.ReactNode }) => {
+export const GameProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
     const navigate = useNavigate();
     const { closeModal } = useModal();
     const [gameData, setGameData] = useState<GameData | undefined>();
@@ -24,21 +24,35 @@ export const GameProvider = ({ children }: { children: React.ReactNode }) => {
     const [board, setBoard] = useState<Board>(initialBoard);
     const [gameState, setGameState] = useState<GameState | undefined>();
 
+    /**
+     * Function to set a piece on the game board.
+     * @param {number} x - The x-coordinate of the piece.
+     * @param {number} y - The y-coordinate of the piece.
+     */
     const setPiece = (x: number, y: number) => {
         socket.emit('game.move', { gameId: gameData?.gameId, move: { x, y } });
     };
 
+    /**
+     * Function to join the game queue.
+     */
     const joinQueue = () => {
         socket.connect();
         socket.emit('queue');
         socket.on('queue', () => {});
     };
 
+    /**
+     * Function to leave the game queue.
+     */
     const leaveQueue = () => {
         socket.off('queue');
         socket.disconnect();
     };
 
+    /**
+     * Function to reset the game state.
+     */
     const resetGame = useCallback(() => {
         setBoard(initialBoard);
         setGameData(undefined);
@@ -47,11 +61,19 @@ export const GameProvider = ({ children }: { children: React.ReactNode }) => {
         socket.disconnect();
     }, [socket]);
 
+    /**
+     * Function to send a chat message.
+     * @param {string} message - The message to send.
+     */
     const sendChat = (message: string) => {
         socket.emit('game.chat', { message: message });
     };
 
     useEffect(() => {
+        /**
+         * Handles the event when a match is found.
+         * @param {{ gameId: string; ownSymbol: string; opponentUsername: string; opponentElo: number; opponentSymbol: string; startingPlayer: string; }} data - Data about the found match.
+         */
         const handleMatchFound = (data: {
             gameId: string;
             ownSymbol: string;
@@ -68,10 +90,18 @@ export const GameProvider = ({ children }: { children: React.ReactNode }) => {
             socket.emit('joinGameRoom', { gameId: data.gameId });
         };
 
+        /**
+         * Handles the event when the game board is updated.
+         * @param {{ gameBoard: string[][]; nextPlayer: string; }} data - Updated game board data.
+         */
         const handleGameBoardUpdate = (data: { gameBoard: string[][]; nextPlayer: string }) => {
             setBoard({ board: data.gameBoard, nextTurn: data.nextPlayer });
         };
 
+        /**
+         * Handles the event when the game ends.
+         * @param {{ winner: string; gameState: string; newXElo: number; newOElo: number; }} data - Data about the end of the game.
+         */
         const handleGameEnd = (data: {
             winner: string;
             gameState: string;
@@ -88,6 +118,10 @@ export const GameProvider = ({ children }: { children: React.ReactNode }) => {
             fetchUser();
         };
 
+        /**
+         * Handles the event when a chat message is received.
+         * @param {ChatItem} data - Received chat message.
+         */
         const handleChatReceived = (data: ChatItem) => {
             setChat((chat) => [
                 ...chat,

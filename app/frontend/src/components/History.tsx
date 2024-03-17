@@ -14,6 +14,12 @@ const History: React.FC<HistoryProps> = ({ history, username }) => {
     const [opponentImages, setOpponentImages] = useState<UserImages>({});
     const sortedHistory = history.sort((a, b) => b.timestamp.getTime() - a.timestamp.getTime());
 
+    /**
+     * Checks if two dates are on the same day.
+     * @param date1 - The first date to compare.
+     * @param date2 - The second date to compare.
+     * @returns True if the dates are on the same day, false otherwise.
+     */
     const areDatesOnSameDay = (date1: Date, date2: Date) => {
         return (
             date1.getFullYear() === date2.getFullYear() &&
@@ -22,6 +28,9 @@ const History: React.FC<HistoryProps> = ({ history, username }) => {
         );
     };
 
+    /**
+     * Fetches profile images of opponents from the server and sets the state with the retrieved images.
+     */
     useEffect(() => {
         const fetchImages = async () => {
             const uniqueNames = new Set(history.map((game) => game.opponentName));

@@ -9,7 +9,7 @@ import {GameResultEntity} from "../../../models/GameResultEntity";
 import {EloService} from "../../../../tictactoe/services/elo/elo.service";
 import {UserEloRatingService} from "../../user-elo-rating/user-elo-rating.service";
 import {GameOutcome} from "../../../../tictactoe/model/GameOutcome";
-
+import { adminImage, kamalaImage } from "../init-seeder/imageProvider";
 /**
  * Service responsible for initializing and seeding the database with initial data.
  * It handles the creation of initial users, their Elo ratings, and game results to simulate a pre-existing state.
@@ -72,6 +72,8 @@ export class InitSeederService {
             ];
 
             users[0].isAdmin = true;
+            users[0].image = Buffer.from(adminImage.split(",")[1], 'base64');
+            users[1].image = Buffer.from(kamalaImage.split(",")[1], 'base64');
 
             await this.userRepository.save(users);
             console.log('Users have been seeded');

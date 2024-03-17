@@ -14,7 +14,12 @@ const LoginModal: React.FC<ModalProps> = ({ close }) => {
     });
     const [showPassword, setShowPassword] = useState(false);
 
-    const handleLogin = async (e: React.FormEvent<HTMLFormElement>) => {
+    /**
+     * Function to handle user login.
+     * @param {React.FormEvent<HTMLFormElement>} e - The form event.
+     * @returns {Promise<void>} - Promise representing the login process.
+     */
+    const handleLogin = async (e: React.FormEvent<HTMLFormElement>): Promise<void> => {
         e.preventDefault();
 
         const result = await loginApi(formData.username, formData.password);

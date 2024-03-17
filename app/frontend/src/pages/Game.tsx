@@ -15,24 +15,35 @@ const Game = () => {
 
     const [enemyImage, setEnemyImage] = useState<string | undefined>(undefined);
 
+    /**
+     * Handles sending a chat message.
+     * @param {React.FormEvent<HTMLFormElement>} e - The form event.
+     */
     const handleChat = (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
         sendChat(chatMessage);
         setChatMessage('');
     };
 
+    /**
+     * Resets the game when the component is unmounted.
+     */
     useEffect(() => {
         return () => {
             resetGame();
         };
     }, [resetGame]);
 
-    
-
+    /**
+     * Redirects to the homepage if user or gameId is not available.
+     */
     useEffect(() => {
         if (!user || !gameData?.gameId) navigate('/');
     }, [user, gameData?.gameId, navigate]);
 
+    /**
+     * Fetches opponent image when opponent username is available.
+     */
     useEffect(() => {
         if (!gameData?.opponentUsername) return;
 
@@ -51,6 +62,11 @@ const Game = () => {
         };
     }, [gameData?.opponentUsername]);
 
+    /**
+     * Render a game piece based on the provided piece type.
+     * @param {string} piece - The type of game piece ('X' or 'O').
+     * @returns {React.ReactElement | null} The rendered game piece component or null if piece type is invalid.
+     */
     const renderPiece = (piece: string) => {
         if (piece === 'O') {
             return (

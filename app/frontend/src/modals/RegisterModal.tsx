@@ -25,7 +25,6 @@ const initalFormData: FormData = {
         password_confirmation: ''
     }
 };
-
 const RegisterModal: React.FC<ModalProps> = ({ close }) => {
     const { login } = useUser();
     const [formData, setFormData] = useState(initalFormData);
@@ -34,7 +33,12 @@ const RegisterModal: React.FC<ModalProps> = ({ close }) => {
         password_confirmation: false
     });
 
-    const handleRegister = async (e: React.FormEvent<HTMLFormElement>) => {
+    /**
+     * Handles the registration process when the form is submitted.
+     * @param {React.FormEvent<HTMLFormElement>} e - Form submission event.
+     * @returns {Promise<void>} - A Promise that resolves when the registration process is completed.
+     */
+    const handleRegister = async (e: React.FormEvent<HTMLFormElement>): Promise<void> => {
         e.preventDefault();
         const formTarget = e.target as HTMLFormElement;
 

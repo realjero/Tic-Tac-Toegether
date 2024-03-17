@@ -5,7 +5,7 @@ import { useUser } from '../../hooks/UserContext';
 import { Link } from 'react-router-dom';
 import { MatchItem, QueueItem, UserImages } from '../../types/types';
 
-function GameData() {
+const GameData = () => {
     const { user, socket } = useUser();
     const [queue, setQueue] = useState<QueueItem[]>([]);
     const [matches, setMatches] = useState<MatchItem[]>([]);
@@ -13,6 +13,10 @@ function GameData() {
     const headers = ['Username', 'Elo'];
     const headers2 = ['User1', 'Elo', '', 'User2', 'Elo', 'Started'];
 
+    /**
+     * Fetches queue and game data from the server and sets the corresponding state.
+     * Listens for socket events to update data dynamically.
+     */
     useEffect(() => {
         const fetchQueue = async () => {
             const result = await getQueue();
@@ -39,6 +43,9 @@ function GameData() {
         };
     }, [user, socket]);
 
+    /**
+     * Fetches profile images of users and sets the state with the retrieved images.
+     */
     useEffect(() => {
         if (queue.length === 0 && matches.length === 0) {
             return;

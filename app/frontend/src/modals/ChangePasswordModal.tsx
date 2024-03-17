@@ -20,6 +20,10 @@ const ChangePasswordModal: React.FC<ModalProps> = ({ close }) => {
     });
     const { fetchUser } = useUser();
 
+    /**
+     * Handles form submission to change password.
+     * @param {React.FormEvent<HTMLFormElement>} e - Form submit event.
+     */
     const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
         const formTarget = e.target as HTMLFormElement;

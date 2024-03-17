@@ -6,7 +6,7 @@ import { ModalProvider } from './hooks/ModalProvider';
 import { Toaster } from 'sonner';
 import { GameProvider } from './hooks/GameProvider';
 
-function Root() {
+const Root = () => {
     const [darkMode, setDarkMode] = useState(false);
 
     useEffect(() => {

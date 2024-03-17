@@ -1,6 +1,12 @@
 import { HistoryItem } from '../types/types';
 
-export const eloOverTime = (history: HistoryItem[], createdAt: Date) => {
+/**
+ * Calculates the Elo rating over time based on the player's game history.
+ * @param {HistoryItem[]} history - The player's game history.
+ * @param {Date} createdAt - The date when the player's profile was created.
+ * @returns { { x: Date, y: number }[] } - An array representing the Elo rating over time.
+ */
+export const eloOverTime = (history: HistoryItem[], createdAt: Date): { x: Date; y: number; }[] => {
     const firstItem = {
         x: new Date(createdAt),
         y: 1000
@@ -13,7 +19,15 @@ export const eloOverTime = (history: HistoryItem[], createdAt: Date) => {
     return data;
 };
 
-export const statisticsOverTime = (history: HistoryItem[], username: string, createdAt: Date) => {
+/**
+ * Calculates the statistics over time based on the player's game history.
+ * @param {HistoryItem[]} history - The player's game history.
+ * @param {string} username - The username of the player.
+ * @param {Date} createdAt - The date when the player's profile was created.
+ * @returns { { x: Date, y: number }[][] } - An array of arrays representing the statistics over time.
+ * The outer array contains three arrays: wins, draws, and losses. Each inner array contains objects with x and y properties representing the timestamp and count of wins, draws, and losses over time, respectively.
+ */
+export const statisticsOverTime = (history: HistoryItem[], username: string, createdAt: Date): { x: Date; y: number; }[][] => {
     let winSum = 0;
     let lossSum = 0;
     let drawSum = 0;

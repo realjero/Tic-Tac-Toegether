@@ -8,6 +8,10 @@ const ChangeUsernameModal: React.FC<ModalProps> = ({ close }) => {
     const [username, setUsername] = useState({ username: '', error: '' });
     const { fetchUser } = useUser();
 
+    /**
+     * Handles form submission for updating username asynchronously.
+     * @param {React.FormEvent<HTMLFormElement>} e The form event
+     */
     const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
         const formTarget = e.target as HTMLFormElement;

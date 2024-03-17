@@ -22,26 +22,36 @@ const Navbar: React.FC<NavbarProps> = ({ setDarkMode, darkMode }) => {
     const navigate = useNavigate();
     const [dropdownOpen, setDropdownOpen] = useState(false);
     const dropdownMenu = useRef<HTMLDivElement>(null);
-
     const { openModal } = useModal();
-
     const { user, logout } = useUser();
 
+    /**
+     * Handles user logout.
+     */
     const handleLogout = () => {
         logout();
         setDropdownOpen(false);
     };
 
+    /**
+     * Handles navigation to the user profile page.
+     */
     const handleProfile = () => {
         setDropdownOpen(false);
         if (user) navigate(`${user?.username}?tab=history`);
     };
 
+    /**
+     * Handles navigation to the admin page.
+     */
     const handleAdmin = () => {
         setDropdownOpen(false);
         navigate('/admin?tab=queue-match');
     };
 
+    /**
+     * Handles click events outside the dropdown menu to close it.
+     */
     useEffect(() => {
         const handleClick = (e: MouseEvent) => {
             if (dropdownMenu.current && !dropdownMenu.current.contains(e.target as Node)) {
@@ -66,7 +76,9 @@ const Navbar: React.FC<NavbarProps> = ({ setDarkMode, darkMode }) => {
                     <div className="mx-3 flex items-center gap-3">
                         {user ? (
                             <>
-                                <Link className={'flex items-center gap-3'} to={`${user?.username}?tab=history`}>
+                                <Link
+                                    className={'flex items-center gap-3'}
+                                    to={`${user?.username}?tab=history`}>
                                     <p className="hidden sm:block">{user.username}</p>
                                     <div className="relative">
                                         <span className="absolute -right-10 -top-3 me-2 rounded bg-secondary-400 px-2.5 py-0.5 text-xs font-medium text-secondary-800">

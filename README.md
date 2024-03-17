@@ -2,89 +2,147 @@
 
 `Mert Ali Özmeral, Sebastian Adam Heinrich Knauf, Eike Torben Menzel & Jerome-Pascal Habanz`
 
-## Getting started
+# Home
 
-### Local Development
-To begin local development, follow these steps for both the _./app/backend_ and _./app/frontend_ directories:
+## Queue
 
-1. **Install dependencies by running the command in** _./app/backend_ **and** _./app/frontend_ **directory:**
-```bash
-npm i
-```
+**Authentication**:
 
-2. **For the frontend, navigate to the _./app/frontend_ directory and initiate the build process with live updates:**
-```bash
-npm run build -- --watch
-```
+- Before accessing the queue, ensure that you are authenticated and logged into your account.
 
-3. **Open another shell window and proceed to the _./app/backend_ directory:**
-4. **Start the backend server in development mode:**
-```bash
-npm run start:dev
-```
+**Modal Display**:
 
-Your webpage should now be up and running on http://localhost:3000
+- Upon clicking the "Play Now" button, a modal window will appear, indicating that you have been added to the matchmaking queue.
 
-Note: To view changes made to the frontend, simply refresh your webpage.
+**Feedback and Waiting**:
 
-### Production Setup
+- You can choose to cancel or leave the queue by simply closing the modal window.
 
-Before proceeding, ensure Docker is installed and running on your system.
+**Match Found**:
 
-1. **Create the GitLab Runner:**
-```bash
-docker run -d --name gitlab-runner --restart always -v /srv/gitlab-runner/config:/etc gitlab-runner -v /var/run/docker.sock:/var/run/docker.sock gitlab/gitlab-runner:latest
-```
+- If a suitable match is found, the system will check the opponent's ELO rating.
+- If the opponent's ELO rating is within 200 points of your rating, the match is considered valid.
+- You will be notified that a match has been found, and you will be redirected to the game interface to start playing.
 
-2. **Register the Runner with the Repository:**
- - Go to your GitLab Repository settings, then navigate to CI/CD and expand the Runners section.
- - Initiate the registration process for the GitLab Runner by executing:
-3. **Now start the registration process for the GitLab-Runner running the following command**
-```bash
-docker exec gitlab-runner gitlab-runner register
-```
- - Provide the URL from GitLab.
- - Enter the registration token from GitLab.
- - Description can be left empty.
- - Set the tag to `docker-runner`.
- - Choose the executor as `docker`.
- - Specify the image as `docker`.
+**ELO Discrepancy**:
 
-4. **Verify Configuration:**
+- If the opponent's ELO rating differs by more than 200 points from your rating, the match will not proceed.
+- In such cases, you will remain in the queue while the system continues searching for a suitable opponent.
 
-Access Docker and locate the _gitlab-runner_ container. From the top menu, click on "Files". Confirm that the configuration file located at _/etc/gitlab-runner/config.toml_ matches the following format:
-```yaml
-concurrent = 1
-check_interval = 0
-shutdown_timeout = 0
+# Profile
 
-[session_server]
-  session_timeout = 1800
+## User
 
-[[runners]]
-  name = "d28e0787d175"
-  url = "https://git.thm.de/"
-  id = 1310
-  token = "3wTPLAHcXxPSRJPNc5Pq"
-  token_obtained_at = 2024-02-21T13:06:58Z
-  token_expires_at = 0001-01-01T00:00:00Z
-  executor = "docker"
-  [runners.cache]
-    MaxUploadedArchiveSize = 0
-  [runners.docker]
-    tls_verify = false
-    image = "docker"
-    privileged = true
-    disable_entrypoint_overwrite = false
-    oom_kill_disable = false
-    disable_cache = false
-    volumes = ["/var/run/docker.sock:/var/run/docker.sock", "/builds:/builds", "/cache"]
-    shm_size = 0
-    network_mtu = 0
-```
+The User profile section provides essential information about the user's account and activity within the application.
 
-5. **Restart the Runner:**
-```bash
-docker exec gitlab-runner gitlab-runner restart
-```
-Your Runner should now be visible on GitLab's CI/CD Runners interface.
+- **Profile Image**: Displays the user's chosen profile image or avatar.
+- **ELO**: Indicates the user's current ELO rating, reflecting their skill level in the game.
+- **Username**: Unique identifier for the user's account.
+- **Change Profile Image**: Allows the user to upload or modify their profile image or avatar.
+- **Change Username**: Enables users to update their account username as needed.
+- **Change Password**: Provides the functionality for the user to update their account password securely, with the option to toggle password visibility.
+
+## Statistics
+
+The Statistics section presents various metrics and analytics related to the user's gameplay and performance.
+
+### PieChart
+
+The PieChart visually represents the distribution of the user's game outcomes.
+
+- **Win Rate**: Percentage of games won by the user.
+- **Total Games Played**: Overall count of games participated in by the user.
+- **PieChart Composition**: Consists of segments representing Wins, Draws, and Losses, providing an overview of the user's performance.
+
+### Game Analytics
+
+The Game Analytics section offers insights into the user's gameplay trends and historical data.
+
+- **History**: Logs of past game sessions, detailing outcomes and resulting ELO.
+- **Elo Over Time (LineChart)**: Graphical representation illustrating changes in the user's ELO rating over a specified period, allowing users to track their skill progression.
+- **Stats Over Time (LineChart)**: Provides a graphical overview of various gameplay statistics over time, including Wins, Losses, and Draws, aiding in performance analysis and trend identification.
+
+# Admin Dashboard
+
+## Games
+
+### Queue
+
+The Queue section of the Admin Dashboard displays the following information for users currently in the matchmaking queue:
+
+- **Profile Image**: Displays the Profile Image.
+- **Username**: Unique identifier for each user.
+- **ELO**: ELO rating, indicating the user's skill level in the game.
+
+### Current Matches
+
+In the Current Matches section, active game sessions are listed, showing details for both you and your opponent:
+
+- **Your Details**: Profile Image, Username, and ELO of the admin user.
+- **Enemy Details**: Profile Image, Username, and ELO of the opponent.
+- **Player Who Started**: Indicates which player initiated the current match.
+
+## Profiles
+
+The Profiles section provides an overview of user profiles with the following details:
+
+- **Profile Image**: Displays the Profile Image.
+- **Username**: Unique identifier for each user.
+- **ELO**: ELO rating, indicating the user's skill level in the game.
+
+For each user listed in the Profiles section, administrators can click on the username to view the full profile information.
+
+# TicTacToe Game
+
+In the TicTacToe Game, users can engage in gameplay interactions with opponents, view game-related information, and communicate through chat.
+
+- **Your Details**: Displayed information about the admin user participating in the TicTacToe game, including the following:
+  - **Profile Image**: Displays the Profile Image.
+  - **Username**: Unique identifier for the admin user.
+  - **ELO**: ELO rating, representing the admin user's skill level in the TicTacToe game.
+
+- **Enemy Details**: Provides details about the opponent in the TicTacToe game, including the following:
+  - **Profile Image**: Displays the Profile Image.
+  - **Username**: Unique identifier for the opponent.
+  - **ELO**: ELO rating of the opponent, indicating their skill level in the TicTacToe game.
+
+## Game Mechanics
+
+The Game Mechanics section provides essential details about the ongoing TicTacToe game session, including:
+- **Board**: Visual representation of the TicTacToe game environment, displaying the current game state.
+- **Set Pieces**: Management of game elements such as X's and O's on the TicTacToe game board.
+- **Whose Turn**: Indicates whose turn it is during the TicTacToe gameplay, allowing users to track the flow of the game.
+
+## Chat
+
+The Chat feature enables users to communicate with each other during the TicTacToe gameplay, with timestamps provided for message tracking and reference.
+
+
+
+# NavBar
+
+## Profile
+Navigates to the user's profile if they are signed in.
+
+## Admin 
+Navigates to the admin dashboard if the user is signed in as an administrator.
+
+## Theme
+Allows the user to change the theme to either Dark or Light.
+
+## Auth
+Provides options for authentication, including signing in and signing up.
+
+### Sign In
+- Username
+- Password (show/hide toggle)
+- Information about the account
+
+### Sign Up
+- Username
+- Password (show/hide toggle)
+- Confirm Password (show/hide toggle)
+- Information about the necessity of a unique username and password matching conventions.
+
+## Logout
+Logs the user out of the current session.

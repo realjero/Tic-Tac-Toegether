@@ -88,7 +88,7 @@
 }
 
 :root {
-    font-family: 'SF Pro Display', sans-serif;
+    font-family: 'Open Sans', sans-serif;
     background: rgb(238, 238, 238);
     background-image: linear-gradient(to right bottom, #e5eded, #e3ecf0, #e4eaf2, #e8e8f2, #eee5ef);
     margin: 0;

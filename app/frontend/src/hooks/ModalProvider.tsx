@@ -40,7 +40,7 @@ interface ModalContent {
  * Function to retrieve the content of a modal based on its identifier.
  * @param {string} identifier - The identifier of the modal.
  * @param {() => void} close - Function to close the modal.
- * @returns {React.FC} - The component representing the modal content.
+ * @returns {React.ReactElement} - The component representing the modal content.
  */
 const modals = (identifier: string, close: () => void) => {
     const modalComponents: { [key: string]: ModalContent } = {
@@ -61,7 +61,7 @@ const modals = (identifier: string, close: () => void) => {
             title: 'Change your password'
         },
         queue: {
-            component: <MatchmakingQueueModal close={close} />,
+            component: <MatchmakingQueueModal />,
             title: 'Searching for a match'
         }
     };
@@ -69,7 +69,7 @@ const modals = (identifier: string, close: () => void) => {
     return modalComponents[identifier] || <p>modal not found</p>;
 };
 
-export const ModalProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+export const ModalProvider = ({ children }: React.PropsWithChildren) => {
     const [open, setOpen] = useState(false);
     const [content, setContent] = useState<ModalContent | null>(null);
     const [closeHandler, setCloseHandler] = useState<CloseHandler>(undefined);

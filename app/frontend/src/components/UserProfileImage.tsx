@@ -6,7 +6,7 @@ interface UserProfileImageProps {
     className?: string;
 }
 
-const UserProfileImage: React.FC<UserProfileImageProps> = ({ image, size, className }) => {
+const UserProfileImage = ({ image, size, className }: UserProfileImageProps) => {
     const remSize = `${size * 0.25}rem`;
 
     return image ? (

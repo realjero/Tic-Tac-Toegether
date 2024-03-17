@@ -1,4 +1,4 @@
-import { ReactNode, useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { getOwnProfile, getProfileImage } from '../lib/api';
 import Cookies from 'js-cookie';
 import { UserContext } from './UserContext';
@@ -11,7 +11,7 @@ import { User } from '../types/types';
  */
 const socket = io('http://localhost:3000', { autoConnect: false });
 
-export const UserProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
+export const UserProvider = ({ children }: React.PropsWithChildren) => {
     const navigate = useNavigate();
     const [user, setUser] = useState<User | null>(null);
     const [loading, setLoading] = useState(true);

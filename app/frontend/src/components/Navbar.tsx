@@ -18,7 +18,7 @@ interface NavbarProps {
     darkMode: boolean;
 }
 
-const Navbar: React.FC<NavbarProps> = ({ setDarkMode, darkMode }) => {
+const Navbar = ({ setDarkMode, darkMode }: NavbarProps) => {
     const navigate = useNavigate();
     const [dropdownOpen, setDropdownOpen] = useState(false);
     const dropdownMenu = useRef<HTMLDivElement>(null);
@@ -148,10 +148,12 @@ const Navbar: React.FC<NavbarProps> = ({ setDarkMode, darkMode }) => {
     );
 };
 
-const DarkModeToggle: React.FC<{ setDarkMode: (mode: boolean) => void; darkMode: boolean }> = ({
-    setDarkMode,
-    darkMode
-}) => {
+interface DarkModeToggleProps {
+    setDarkMode: (mode: boolean) => void;
+    darkMode: boolean;
+}
+
+const DarkModeToggle = ({ setDarkMode, darkMode }: DarkModeToggleProps) => {
     return (
         <button onClick={() => setDarkMode(!darkMode)} className="px-1">
             {darkMode ? <SunIcon width={32} /> : <MoonIcon width={32} />}

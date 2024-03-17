@@ -25,7 +25,7 @@ const initalFormData: FormData = {
         password_confirmation: ''
     }
 };
-const RegisterModal: React.FC<ModalProps> = ({ close }) => {
+const RegisterModal = ({ close }: ModalProps) => {
     const { login } = useUser();
     const [formData, setFormData] = useState(initalFormData);
     const [showPassword, setShowPassword] = useState({

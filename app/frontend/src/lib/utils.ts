@@ -6,7 +6,7 @@ import { HistoryItem } from '../types/types';
  * @param {Date} createdAt - The date when the player's profile was created.
  * @returns { { x: Date, y: number }[] } - An array representing the Elo rating over time.
  */
-export const eloOverTime = (history: HistoryItem[], createdAt: Date): { x: Date; y: number; }[] => {
+export const eloOverTime = (history: HistoryItem[], createdAt: Date): { x: Date; y: number }[] => {
     const firstItem = {
         x: new Date(createdAt),
         y: 1000
@@ -27,7 +27,11 @@ export const eloOverTime = (history: HistoryItem[], createdAt: Date): { x: Date;
  * @returns { { x: Date, y: number }[][] } - An array of arrays representing the statistics over time.
  * The outer array contains three arrays: wins, draws, and losses. Each inner array contains objects with x and y properties representing the timestamp and count of wins, draws, and losses over time, respectively.
  */
-export const statisticsOverTime = (history: HistoryItem[], username: string, createdAt: Date): { x: Date; y: number; }[][] => {
+export const statisticsOverTime = (
+    history: HistoryItem[],
+    username: string,
+    createdAt: Date
+): { x: Date; y: number }[][] => {
     let winSum = 0;
     let lossSum = 0;
     let drawSum = 0;
@@ -59,3 +63,46 @@ export const statisticsOverTime = (history: HistoryItem[], username: string, cre
 
     return [wins, draws, losses];
 };
+
+export const boardPresets = [
+    [
+        ['O', 'X', ''],
+        ['O', 'X', 'O'],
+        ['', 'X', '']
+    ],
+    [
+        ['X', '', 'O'],
+        ['', 'O', 'X'],
+        ['X', 'O', '']
+    ],
+    [
+        ['X', '', ''],
+        ['', 'O', ''],
+        ['', '', 'X']
+    ],
+    [
+        ['', '', 'X'],
+        ['O', '', ''],
+        ['', 'X', 'O']
+    ],
+    [
+        ['', 'X', 'O'],
+        ['', '', ''],
+        ['O', '', 'X']
+    ],
+    [
+        ['X', '', ''],
+        ['', 'O', ''],
+        ['O', 'X', '']
+    ],
+    [
+        ['', 'X', 'O'],
+        ['', 'O', ''],
+        ['X', '', 'X']
+    ],
+    [
+        ['', 'O', 'X'],
+        ['X', '', ''],
+        ['O', '', 'X']
+    ]
+];

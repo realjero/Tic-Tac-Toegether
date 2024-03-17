@@ -124,10 +124,10 @@ const Game = () => {
                 )}
 
                 <div className="flex h-full grow items-center justify-center">
-                    <div className="w-full text-text xl:grid xl:grid-cols-2">
+                    <div className="grid w-full items-center text-text xl:grid-cols-2">
                         {/* MAIN GAME VIEW */}
                         <div className="mx-auto w-full p-12 md:max-w-[55vw] xl:max-w-[30vw]">
-                            {/* GAME INFO TODO: DATAaaaa*/}
+                            {/* GAME INFO */}
                             <div className="mb-4 flex items-center justify-between">
                                 <div className="flex items-center gap-3">
                                     <div className="relative">
@@ -166,7 +166,7 @@ const Game = () => {
                                 )}
                             </div>
 
-                            {/* SELECT SYMBOL TODO: DATAAAA*/}
+                            {/* SELECT SYMBOL */}
                             <div className="mt-4 flex justify-center">
                                 <div className="relative flex h-10 w-20 items-center rounded-full bg-white">
                                     <span
@@ -204,10 +204,10 @@ const Game = () => {
                         </div>
 
                         {/* CHAT */}
-                        <div className="mx-12 my-24 h-[500px] xl:my-auto">
+                        <div className="m-4 md:mx-12">
                             <h2 className="mb-1 text-center text-3xl font-medium">Chat</h2>
-                            <div className="h-full rounded-lg bg-background">
-                                <div className="flex h-full flex-col gap-3 overflow-y-scroll p-5">
+                            <div className="rounded-lg bg-background">
+                                <div className="flex h-[30vh] flex-col gap-3 overflow-y-scroll p-5 md:h-[50vh]">
                                     <p className="my-2 text-center text-xs">
                                         {chat[0] && chat[0].timestamp.toLocaleDateString('en')}
                                     </p>
@@ -249,7 +249,7 @@ const Game = () => {
                             </div>
                             <form
                                 className="mt-1 flex w-full items-center gap-1 rounded-lg bg-background p-1"
-                                onSubmit={(e) => handleChat(e)}>
+                                onSubmit={handleChat}>
                                 <input
                                     value={chatMessage}
                                     onChange={(e) => setChatMessage(e.target.value)}
@@ -276,7 +276,7 @@ interface SymbolProps {
     className?: string;
 }
 
-const XSymbol: React.FC<SymbolProps> = ({ className }) => {
+const XSymbol = ({ className }: SymbolProps) => {
     return (
         <div className="relative flex aspect-square h-full w-full items-center justify-center">
             <div
@@ -287,7 +287,7 @@ const XSymbol: React.FC<SymbolProps> = ({ className }) => {
     );
 };
 
-const OSymbol: React.FC<SymbolProps> = ({ className }) => {
+const OSymbol = ({ className }: SymbolProps) => {
     return <div className={`aspect-square size-4 rounded-full border-[4px] ${className}`}></div>;
 };
 

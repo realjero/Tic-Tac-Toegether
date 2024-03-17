@@ -5,7 +5,7 @@ import { useUser } from '../hooks/UserContext';
 import { toast } from 'sonner';
 import { EyeIcon, EyeSlashIcon } from '@heroicons/react/24/outline';
 
-const ChangePasswordModal: React.FC<ModalProps> = ({ close }) => {
+const ChangePasswordModal = ({ close }: ModalProps) => {
     const [formData, setFormData] = useState({
         password: '',
         password_confirmation: '',

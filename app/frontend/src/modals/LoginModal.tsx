@@ -4,7 +4,7 @@ import { ModalProps } from '../hooks/ModalProvider';
 import { EyeIcon, EyeSlashIcon } from '@heroicons/react/24/outline';
 import { login as loginApi } from '../lib/api';
 
-const LoginModal: React.FC<ModalProps> = ({ close }) => {
+const LoginModal = ({ close }: ModalProps) => {
     const { login } = useUser();
     const [formData, setFormData] = useState({
         username: '',

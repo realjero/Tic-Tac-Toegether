@@ -5,7 +5,7 @@ interface StatisticsChartProps {
     data: { x: Date; y: number }[][];
 }
 
-const StatisticsChart: React.FC<StatisticsChartProps> = ({ data }) => {
+const StatisticsChart = ({ data }: StatisticsChartProps) => {
     const [zoomDomain, setZoomDomain] = useState<undefined>(undefined);
 
     /**

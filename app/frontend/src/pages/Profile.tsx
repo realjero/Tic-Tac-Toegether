@@ -2,7 +2,13 @@ import { useEffect, useState } from 'react';
 import { useModal } from '../hooks/ModalContext';
 import { useUser } from '../hooks/UserContext';
 import { HistoryItem, User } from '../types/types';
-import { getHistory, getOwnHistory, getProfile, setProfileImage } from '../lib/api';
+import {
+    getHistory,
+    getOwnHistory,
+    getProfile,
+    getProfileImage,
+    setProfileImage
+} from '../lib/api';
 import { toast } from 'sonner';
 import { PencilIcon } from '@heroicons/react/24/solid';
 import UserProfileImage from '../components/UserProfileImage';
@@ -32,7 +38,6 @@ const Profile = () => {
      * Fetch user profile and history on component mount or username change.
      */
     useEffect(() => {
-        if (queryUser) return;
         if (!username) return;
 
         const fetchUser = async () => {
@@ -44,16 +49,24 @@ const Profile = () => {
             }
 
             const data = await result.json();
-            setQueryUser(data);
+
+            const imageResult = await getProfileImage(username);
+            if (!imageResult?.ok) {
+                setQueryUser({ ...data, image: undefined });
+                return;
+            }
+
+            const image = URL.createObjectURL(await imageResult.blob());
+            setQueryUser({ ...data, image: image });
         };
 
         const fetchHistory = async () => {
             let result: Response | undefined;
-            
-            if (queryUser) {
-                result = await getHistory(username);
-            } else {
+
+            if (username === user?.username) {
                 result = await getOwnHistory();
+            } else {
+                result = await getHistory(username);
             }
 
             if (!result?.ok) return;
@@ -67,12 +80,18 @@ const Profile = () => {
             setLoading(false);
         };
 
-        if (username !== user?.username) {
+        if (user && !queryUser && username !== user?.username) {
             fetchUser();
+            fetchHistory();
+            return;
         }
 
-        fetchHistory();
-    }, [navigate, queryUser, user?.username, username]);
+        if (user && username === user.username) {
+            setQueryUser(undefined);
+            fetchHistory();
+            return;
+        }
+    }, [navigate, queryUser, user, username]);
 
     /**
      * Handle profile image upload.
@@ -165,9 +184,21 @@ const Profile = () => {
                         <div className="rounded-lg bg-background p-4 lg:p-10">
                             <h2 className="text-2xl font-bold lg:text-center">Statistic</h2>
                             <PieChart
-                                wins={user.gameStats.wonGames}
-                                losses={user.gameStats.lostGames}
-                                draws={user.gameStats.drawGames}
+                                wins={
+                                    queryUser
+                                        ? queryUser.gameStats.wonGames
+                                        : user.gameStats.wonGames
+                                }
+                                losses={
+                                    queryUser
+                                        ? queryUser.gameStats.lostGames
+                                        : user.gameStats.lostGames
+                                }
+                                draws={
+                                    queryUser
+                                        ? queryUser.gameStats.drawGames
+                                        : user.gameStats.drawGames
+                                }
                             />
                         </div>
                     </div>
@@ -195,32 +226,34 @@ const Profile = () => {
                             </Link>
                         </div>
 
-                        {/* Content */}
-                        {tab === 'history' && (
-                            <History
-                                history={history}
-                                username={queryUser ? queryUser.username : user.username}
-                            />
-                        )}
-                        {tab === 'elo' && (
-                            <LineChart
-                                data={[
-                                    eloOverTime(
+                        <div className="lg:mx-20 xl:mx-32">
+                            {/* Content */}
+                            {tab === 'history' && (
+                                <History
+                                    history={history}
+                                    username={queryUser ? queryUser.username : user.username}
+                                />
+                            )}
+                            {tab === 'elo' && (
+                                <LineChart
+                                    data={[
+                                        eloOverTime(
+                                            history,
+                                            queryUser ? queryUser.createdAt : user.createdAt
+                                        )
+                                    ]}
+                                />
+                            )}
+                            {tab === 'statistics' && (
+                                <StatisticsChart
+                                    data={statisticsOverTime(
                                         history,
+                                        queryUser ? queryUser.username : user.username,
                                         queryUser ? queryUser.createdAt : user.createdAt
-                                    )
-                                ]}
-                            />
-                        )}
-                        {tab === 'statistics' && (
-                            <StatisticsChart
-                                data={statisticsOverTime(
-                                    history,
-                                    queryUser ? queryUser.username : user.username,
-                                    queryUser ? queryUser.createdAt : user.createdAt
-                                )}
-                            />
-                        )}
+                                    )}
+                                />
+                            )}
+                        </div>
                     </div>
                 </div>
             </div>

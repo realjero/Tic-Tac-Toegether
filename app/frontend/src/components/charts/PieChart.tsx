@@ -1,4 +1,3 @@
-import React from 'react';
 import { VictoryPie } from 'victory';
 
 interface PieChartProps {
@@ -7,7 +6,7 @@ interface PieChartProps {
     draws: number;
 }
 
-const PieChart: React.FC<PieChartProps> = ({ wins, losses, draws }) => {
+const PieChart = ({ wins, losses, draws }: PieChartProps) => {
     const total: number = wins + losses + draws;
 
     /**

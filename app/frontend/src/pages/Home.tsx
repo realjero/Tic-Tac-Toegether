@@ -1,11 +1,16 @@
 import { useGame } from '../hooks/GameContext';
 import { useModal } from '../hooks/ModalContext';
 import { useUser } from '../hooks/UserContext';
+import { boardPresets } from '../lib/utils';
 
 const Home = () => {
     const { openModal } = useModal();
     const { leaveQueue, joinQueue } = useGame();
     const user = useUser();
+
+    const randomBoardPreset = () => {
+        return boardPresets[Math.floor(Math.random() * boardPresets.length)];
+    };
 
     /**
      * Handles joining the matchmaking queue and opening the queue modal.
@@ -43,31 +48,30 @@ const Home = () => {
                                 Sign Up
                             </button>
                         )}
-
-                        <button className="rounded border border-accent-500 px-3 py-2">
-                            Get Started
-                        </button>
                     </div>
                 </div>
                 <div className="m-4 flex items-center">
                     <div className="mx-auto grid aspect-square w-full grid-cols-3 gap-4 md:max-w-[70vw] xl:max-w-[30vw]">
-                        {Array.from({ length: 9 }).map((_, i) => (
-                            <div key={i} className="rounded-xl bg-secondary-400 p-6">
-                                {Math.random() > 0.5 ? (
-                                    <div className="aspect-square h-full w-full rounded-full border-[1rem] border-text"></div>
-                                ) : (
-                                    <div className="relative flex aspect-square h-full w-full items-center justify-center">
-                                        <div className="absolute h-4 w-full rotate-[45deg] rounded-l-full rounded-r-full bg-text"></div>
-                                        <div className="h-full w-4 rotate-[45deg] rounded-l-full rounded-r-full bg-text"></div>
-                                    </div>
-                                )}
-                            </div>
-                        ))}
+                        {randomBoardPreset().map((data) =>
+                            data.map((piece) => (
+                                <div className="aspect-square rounded-xl bg-secondary-400 p-2 md:p-4">
+                                    {piece === 'O' && (
+                                        <div className="aspect-square h-full w-full rounded-full border-[1rem] border-text"></div>
+                                    )}
+                                    {piece === 'X' && (
+                                        <div className="relative flex aspect-square h-full w-full items-center justify-center">
+                                            <div className="absolute h-4 w-full rotate-[45deg] rounded-l-full rounded-r-full bg-text"></div>
+                                            <div className="h-full w-4 rotate-[45deg] rounded-l-full rounded-r-full bg-text"></div>
+                                        </div>
+                                    )}
+                                </div>
+                            ))
+                        )}
                     </div>
                 </div>
             </div>
         </div>
     );
-}
+};
 
 export default Home;

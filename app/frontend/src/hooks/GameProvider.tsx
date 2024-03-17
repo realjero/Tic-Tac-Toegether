@@ -14,7 +14,7 @@ const initialBoard: Board = {
     nextTurn: undefined
 };
 
-export const GameProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+export const GameProvider = ({ children }: React.PropsWithChildren) => {
     const navigate = useNavigate();
     const { closeModal } = useModal();
     const [gameData, setGameData] = useState<GameData | undefined>();

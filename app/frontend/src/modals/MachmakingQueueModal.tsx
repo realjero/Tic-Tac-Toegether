@@ -1,7 +1,6 @@
 import { ArrowPathIcon } from '@heroicons/react/24/outline';
-import { ModalProps } from '../hooks/ModalProvider';
 
-const MatchmakingQueueModal: React.FC<ModalProps> = () => {
+const MatchmakingQueueModal = () => {
     return (
         <>
             <div className="flex items-center justify-center">

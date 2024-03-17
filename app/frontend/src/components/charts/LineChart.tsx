@@ -5,7 +5,7 @@ interface LineChartProps {
     data: { x: Date; y: number }[][];
 }
 
-const LineChart: React.FC<LineChartProps> = ({ data }) => {
+const LineChart = ({ data }: LineChartProps) => {
     const [zoomDomain, setZoomDomain] = useState<undefined>(undefined);
 
     /**

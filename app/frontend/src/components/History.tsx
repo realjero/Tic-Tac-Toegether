@@ -9,7 +9,7 @@ interface HistoryProps {
     username: string;
 }
 
-const History: React.FC<HistoryProps> = ({ history, username }) => {
+const History = ({ history, username }: HistoryProps) => {
     const headers = ['Date', 'Enemy', 'Winner', 'Result'];
     const [opponentImages, setOpponentImages] = useState<UserImages>({});
     const sortedHistory = history.sort((a, b) => b.timestamp.getTime() - a.timestamp.getTime());

@@ -2,12 +2,11 @@ import React, { useEffect } from 'react';
 import { useUser } from '../hooks/UserContext';
 import { useNavigate } from 'react-router-dom';
 
-interface ProtectedRouteProps {
-    children: React.ReactNode;
+interface ProtectedRouteProps extends React.PropsWithChildren {
     adminOnly?: boolean;
 }
 
-const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children, adminOnly }) => {
+const ProtectedRoute = ({ children, adminOnly }: ProtectedRouteProps) => {
     const { user } = useUser();
     const navigate = useNavigate();
 

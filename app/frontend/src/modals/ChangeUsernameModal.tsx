@@ -4,7 +4,7 @@ import { updateUsername } from '../lib/api';
 import { useUser } from '../hooks/UserContext';
 import { toast } from 'sonner';
 
-const ChangeUsernameModal: React.FC<ModalProps> = ({ close }) => {
+const ChangeUsernameModal = ({ close }: ModalProps) => {
     const [username, setUsername] = useState({ username: '', error: '' });
     const { fetchUser } = useUser();
 

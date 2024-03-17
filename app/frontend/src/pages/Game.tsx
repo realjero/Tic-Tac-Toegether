@@ -1,12 +1,11 @@
+import { XMarkIcon, TrophyIcon, ScaleIcon } from '@heroicons/react/24/outline';
 import { useEffect, useState } from 'react';
 import { useGame } from '../hooks/GameContext';
 import { useUser } from '../hooks/UserContext';
 import { useNavigate } from 'react-router-dom';
 import UserProfileImage from '../components/UserProfileImage';
 import { PaperAirplaneIcon } from '@heroicons/react/24/outline';
-import { apiFetch } from '../lib/api';
-import { toast } from 'sonner';
-import Cookies from 'js-cookie';
+import { getProfileImage } from '../lib/api';
 
 const Game = () => {
     const { setPiece, resetGame, board, gameData, gameState, chat, sendChat } = useGame();
@@ -23,6 +22,14 @@ const Game = () => {
     };
 
     useEffect(() => {
+        return () => {
+            resetGame();
+        };
+    }, [resetGame]);
+
+    
+
+    useEffect(() => {
         if (!user || !gameData?.gameId) navigate('/');
     }, [user, gameData?.gameId, navigate]);
 
@@ -30,26 +37,11 @@ const Game = () => {
         if (!gameData?.opponentUsername) return;
 
         const fetchImage = async () => {
-            try {
-                const result = await apiFetch(`profiles/${gameData.opponentUsername}/image`, {
-                    method: 'GET',
-                    headers: {
-                        Authorization: `Bearer ${Cookies.get('sessionToken')}`
-                    }
-                });
+            const result = await getProfileImage(gameData.opponentUsername);
+            if (!result?.ok) return;
 
-                if (!result.ok) {
-                    return;
-                }
-
-                const image = URL.createObjectURL(await result.blob());
-
-                setEnemyImage(image);
-            } catch (err: unknown) {
-                if (err instanceof Error) {
-                    toast.error(err.message);
-                }
-            }
+            const image = URL.createObjectURL(await result.blob());
+            setEnemyImage(image);
         };
 
         fetchImage();
@@ -82,7 +74,13 @@ const Game = () => {
                 {gameState && (
                     <div className="fixed bottom-0 left-0 right-0 top-0 z-20 flex flex-col items-center justify-center backdrop-blur-lg">
                         <p className="pb-4 text-9xl font-black text-text">
-                            {gameState.winner === undefined ? '🟰' : gameState.winner ? '🏆' : '🚽'}
+                            {gameState.winner === undefined ? (
+                                <ScaleIcon className="size-24 text-text" />
+                            ) : gameState.winner ? (
+                                <TrophyIcon className="size-24 text-yellow-400" />
+                            ) : (
+                                <XMarkIcon className="size-24 text-accent-500" />
+                            )}
                         </p>
 
                         <p className="text-5xl font-black text-text">
@@ -145,7 +143,7 @@ const Game = () => {
                                         <div
                                             key={`${x}${y}`}
                                             onClick={() => setPiece(x, y)}
-                                            className={`aspect-square rounded-xl bg-secondary-400 p-6 ${piece === '' && board.nextTurn === gameData.ownSymbol ? 'cursor-pointer' : 'cursor-not-allowed'}`}>
+                                            className={`aspect-square rounded-xl bg-secondary-400 p-2 md:p-4 ${piece === '' && board.nextTurn === gameData.ownSymbol ? 'cursor-pointer' : 'cursor-not-allowed'}`}>
                                             {renderPiece(piece)}
                                         </div>
                                     ))
@@ -191,8 +189,9 @@ const Game = () => {
 
                         {/* CHAT */}
                         <div className="mx-12 my-24 h-[500px] xl:my-auto">
-                            <div className="relative h-full rounded-lg bg-background pb-8">
-                                <div className="flex flex-col gap-3 overflow-y-scroll p-5">
+                            <h2 className="mb-1 text-center text-3xl font-medium">Chat</h2>
+                            <div className="h-full rounded-lg bg-background">
+                                <div className="flex h-full flex-col gap-3 overflow-y-scroll p-5">
                                     <p className="my-2 text-center text-xs">
                                         {chat[0] && chat[0].timestamp.toLocaleDateString('en')}
                                     </p>
@@ -208,7 +207,7 @@ const Game = () => {
                                             {user?.username === message.sender ? (
                                                 <div className="flex justify-end">
                                                     <div>
-                                                        <p className="rounded-md bg-primary-500 px-2 py-1">
+                                                        <p className="break-all rounded-md bg-primary-500 px-2 py-1">
                                                             {message.message}
                                                         </p>
                                                         <p className="float-right text-xs">
@@ -219,7 +218,7 @@ const Game = () => {
                                             ) : (
                                                 <div className="flex">
                                                     <div>
-                                                        <p className="rounded-md bg-secondary-300 px-2 py-1">
+                                                        <p className="break-all rounded-md bg-secondary-300 px-2 py-1">
                                                             {message.message}
                                                         </p>
                                                         <p className="text-xs">
@@ -231,25 +230,24 @@ const Game = () => {
                                         </>
                                     ))}
                                 </div>
-
-                                <form
-                                    className="absolute bottom-0 flex w-full items-center gap-1 p-1"
-                                    onSubmit={(e) => handleChat(e)}>
-                                    <input
-                                        value={chatMessage}
-                                        onChange={(e) => setChatMessage(e.target.value)}
-                                        type="text"
-                                        className="w-full rounded-lg border border-text bg-background px-2 py-1"
-                                    />
-                                    <div>
-                                        <button
-                                            type="submit"
-                                            className="rounded-full bg-primary-500 p-1">
-                                            <PaperAirplaneIcon className="size-6" />
-                                        </button>
-                                    </div>
-                                </form>
                             </div>
+                            <form
+                                className="mt-1 flex w-full items-center gap-1 rounded-lg bg-background p-1"
+                                onSubmit={(e) => handleChat(e)}>
+                                <input
+                                    value={chatMessage}
+                                    onChange={(e) => setChatMessage(e.target.value)}
+                                    type="text"
+                                    className="w-full rounded-lg border border-text bg-background px-2 py-1"
+                                />
+                                <div>
+                                    <button
+                                        type="submit"
+                                        className="rounded-full bg-primary-500 p-1">
+                                        <PaperAirplaneIcon className="size-6" />
+                                    </button>
+                                </div>
+                            </form>
                         </div>
                     </div>
                 </div>

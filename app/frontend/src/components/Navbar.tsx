@@ -13,12 +13,12 @@ import { useUser } from '../hooks/UserContext';
 import { useModal } from '../hooks/ModalContext';
 import UserProfileImage from './UserProfileImage';
 
-interface Props {
+interface NavbarProps {
     setDarkMode: (mode: boolean) => void;
     darkMode: boolean;
 }
 
-const Navbar: React.FC<Props> = ({ setDarkMode, darkMode }) => {
+const Navbar: React.FC<NavbarProps> = ({ setDarkMode, darkMode }) => {
     const navigate = useNavigate();
     const [dropdownOpen, setDropdownOpen] = useState(false);
     const dropdownMenu = useRef<HTMLDivElement>(null);
@@ -34,14 +34,13 @@ const Navbar: React.FC<Props> = ({ setDarkMode, darkMode }) => {
 
     const handleProfile = () => {
         setDropdownOpen(false);
-        if (user) navigate(user?.username);
+        if (user) navigate(`${user?.username}?tab=history`);
     };
 
     const handleAdmin = () => {
         setDropdownOpen(false);
-        navigate('/admin')
+        navigate('/admin?tab=queue-match');
     };
-
 
     useEffect(() => {
         const handleClick = (e: MouseEvent) => {
@@ -67,7 +66,7 @@ const Navbar: React.FC<Props> = ({ setDarkMode, darkMode }) => {
                     <div className="mx-3 flex items-center gap-3">
                         {user ? (
                             <>
-                                <Link className={'flex items-center gap-3'} to={user.username}>
+                                <Link className={'flex items-center gap-3'} to={`${user?.username}?tab=history`}>
                                     <p className="hidden sm:block">{user.username}</p>
                                     <div className="relative">
                                         <span className="absolute -right-10 -top-3 me-2 rounded bg-secondary-400 px-2.5 py-0.5 text-xs font-medium text-secondary-800">
@@ -117,7 +116,8 @@ const Navbar: React.FC<Props> = ({ setDarkMode, darkMode }) => {
                             Profile
                         </p>
                         {user?.isAdmin && (
-                            <p onClick={handleAdmin}
+                            <p
+                                onClick={handleAdmin}
                                 className="flex cursor-pointer items-center border-b-[1px] border-b-gray-600 px-4 py-3">
                                 <BuildingLibraryIcon width={24} className="me-2" />
                                 Administration

@@ -1,7 +1,6 @@
 import { useState } from 'react';
 import { ModalProps } from '../hooks/ModalProvider';
-import { apiFetch } from '../lib/api';
-import Cookies from 'js-cookie';
+import { updateUsername } from '../lib/api';
 import { useUser } from '../hooks/UserContext';
 import { toast } from 'sonner';
 
@@ -12,34 +11,19 @@ const ChangeUsernameModal: React.FC<ModalProps> = ({ close }) => {
     const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
         const formTarget = e.target as HTMLFormElement;
+        const result = await updateUsername(username.username);
 
-        try {
-            const result = await apiFetch('profiles/own', {
-                method: 'PUT',
-                headers: {
-                    'Content-Type': 'application/json',
-                    Authorization: `Bearer ${Cookies.get('sessionToken')}`
-                },
-                body: JSON.stringify({ username: username.username })
-            });
-
-            if (!result.ok) {
-                const data = await result.json();
-                setUsername({ ...username, error: data.error.username });
-                formTarget['new-password'].focus();
-                return;
-            }
-
-            fetchUser();
-            close();
-            toast.success('Username changed successfully');
-        } catch (err: unknown) {
-            if (err instanceof Error) {
-                toast.error(err.message);
-            } else {
-                toast.error('An error occurred.');
-            }
+        if (!result) return;
+        if (!result.ok) {
+            const data = await result.json();
+            setUsername({ ...username, error: data.error.username });
+            formTarget['new-password'].focus();
+            return;
         }
+
+        fetchUser();
+        close();
+        toast.success('Username changed successfully');
     };
 
     return (

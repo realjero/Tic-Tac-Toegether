@@ -1,46 +1,24 @@
 import { useEffect, useState } from 'react';
-import Cookies from 'js-cookie';
-import { toast } from 'sonner';
-import { apiFetch } from '../../lib/api';
+import { getProfileImage, getProfiles } from '../../lib/api';
 import UserProfileImage from '../UserProfileImage';
 import { useUser } from '../../hooks/UserContext';
-import { UserImages } from '../History';
 import { Link } from 'react-router-dom';
-
-interface User {
-    id: string;
-    username: string;
-    elo: number;
-}
+import { UserImages, UserProfileItem } from '../../types/types';
 
 function Profiles() {
     const { user } = useUser();
-    const [users, setUsers] = useState<User[]>([]);
+    const [users, setUsers] = useState<UserProfileItem[]>([]);
     const [images, setImages] = useState<UserImages>({});
     const headers = ['', 'Elo'];
 
     useEffect(() => {
         const fetchUsers = async () => {
-            try {
-                const result = await apiFetch('profiles', {
-                    method: 'GET',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        Authorization: `Bearer ${Cookies.get('sessionToken')}`
-                    }
-                });
+            const result = await getProfiles();
 
-                if (!result.ok) {
-                    throw new Error('Failed to fetch users');
-                }
+            if (!result?.ok) return;
 
-                const data = await result.json();
-                setUsers(data);
-            } catch (err: unknown) {
-                if (err instanceof Error) {
-                    toast.error(err.message);
-                }
-            }
+            const data = await result.json();
+            setUsers(data);
         };
 
         fetchUsers();
@@ -56,27 +34,12 @@ function Profiles() {
             const userImages: UserImages = {};
 
             await Promise.all(
-                [...uniqueNames].map(async (name) => {
-                    try {
-                        const result = await apiFetch(`profiles/${name}/image`, {
-                            method: 'GET',
-                            headers: {
-                                Authorization: `Bearer ${Cookies.get('sessionToken')}`
-                            }
-                        });
+                [...uniqueNames].map(async (username) => {
+                    const result = await getProfileImage(username);
+                    if (!result?.ok) return;
 
-                        if (!result.ok) {
-                            userImages[name] = undefined;
-                            return;
-                        }
-
-                        const image = URL.createObjectURL(await result.blob());
-                        userImages[name] = image;
-                    } catch (err: unknown) {
-                        if (err instanceof Error) {
-                            toast.error(err.message);
-                        }
-                    }
+                    const image = URL.createObjectURL(await result.blob());
+                    userImages[username] = image;
                 })
             );
             setImages(userImages);
@@ -98,10 +61,10 @@ function Profiles() {
                     </tr>
                 </thead>
                 <tbody className="w-full divide-y divide-gray-500">
-                    {users.map((user) => (
-                        <tr key={user.id}>
+                    {users.map((user, index) => (
+                        <tr key={index}>
                             <td>
-                                <Link to={`/${user.username}`} className="flex items-center">
+                                <Link to={`/${user.username}?tab=history`} className="flex items-center">
                                     <UserProfileImage image={images[user.username]} size={10} />
                                     <div className="text-ellipsis whitespace-nowrap p-4">
                                         {user.username}

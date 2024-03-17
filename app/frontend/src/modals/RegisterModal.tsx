@@ -1,9 +1,8 @@
 import { useState } from 'react';
-import { apiFetch } from '../lib/api';
 import { useUser } from '../hooks/UserContext';
 import { ModalProps } from '../hooks/ModalProvider';
-import { toast } from 'sonner';
 import { EyeIcon, EyeSlashIcon } from '@heroicons/react/24/outline';
+import { register } from '../lib/api';
 
 interface FormData {
     username: string;
@@ -48,37 +47,21 @@ const RegisterModal: React.FC<ModalProps> = ({ close }) => {
             return;
         }
 
-        try {
-            const result = await apiFetch('register', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({
-                    username: formData.username,
-                    password: formData.password
-                })
-            });
+        const result = await register(formData.username, formData.password);
+        if (!result) return;
 
-            const data = await result.json();
-            if (!result.ok) {
-                setFormData({ ...formData, error: data.error });
-                if (data.error.username) formTarget.username.focus();
+        const data = await result.json();
 
-                if (data.error.password) formTarget.password.focus();
-                return;
-            }
-
-            login(data?.access_token, false);
-            close();
-            setFormData(initalFormData);
-        } catch (err: unknown) {
-            if (err instanceof Error) {
-                toast.error(err.message);
-            } else {
-                toast.error('An error occurred. Please try again later.');
-            }
+        if (!result.ok) {
+            setFormData({ ...formData, error: data.error });
+            if (data.error.username) formTarget.username.focus();
+            if (data.error.password) formTarget.password.focus();
+            return;
         }
+
+        login(data?.access_token, false);
+        close();
+        setFormData(initalFormData);
     };
 
     return (

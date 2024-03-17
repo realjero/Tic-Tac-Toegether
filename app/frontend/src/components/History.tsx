@@ -1,27 +1,12 @@
-import { XMarkIcon } from '@heroicons/react/24/outline';
-import { TrophyIcon } from '@heroicons/react/24/outline';
-import { ScaleIcon } from '@heroicons/react/24/outline';
+import { XMarkIcon, TrophyIcon, ScaleIcon } from '@heroicons/react/24/outline';
 import { useEffect, useState } from 'react';
-import { apiFetch } from '../lib/api';
-import Cookies from 'js-cookie';
+import { getProfileImage } from '../lib/api';
 import UserProfileImage from './UserProfileImage';
-import { toast } from 'sonner';
-
-interface History {
-    opponentEloAtTimestamp: number;
-    opponentName: string;
-    ownEloAtTimestamp: number;
-    timestamp: Date;
-    winner: string;
-}
+import { HistoryItem, UserImages } from '../types/types';
 
 interface HistoryProps {
-    history: History[];
+    history: HistoryItem[];
     username: string;
-}
-
-export interface UserImages {
-    [key: string]: string | undefined;
 }
 
 const History: React.FC<HistoryProps> = ({ history, username }) => {
@@ -38,32 +23,21 @@ const History: React.FC<HistoryProps> = ({ history, username }) => {
     };
 
     useEffect(() => {
-        const uniqueNames = new Set(history.map((game) => game.opponentName));
-        const userImages: UserImages = {};
-        uniqueNames.forEach(async (name) => {
-            try {
-                const result = await apiFetch(`profiles/${name}/image`, {
-                    method: 'GET',
-                    headers: {
-                        Authorization: `Bearer ${Cookies.get('sessionToken')}`
-                    }
-                });
+        const fetchImages = async () => {
+            const uniqueNames = new Set(history.map((game) => game.opponentName));
+            const userImages: UserImages = {};
+            await Promise.all(
+                [...uniqueNames].map(async (username) => {
+                    const result = await getProfileImage(username);
+                    if (!result?.ok) return;
+                    const image = URL.createObjectURL(await result.blob());
+                    userImages[username] = image;
+                })
+            );
+            setOpponentImages(userImages);
+        };
 
-                if (!result.ok) {
-                    userImages[name] = undefined;
-                    return;
-                }
-
-                const image = URL.createObjectURL(await result.blob());
-
-                userImages[name] = image;
-            } catch (err: unknown) {
-                if (err instanceof Error) {
-                    toast.error(err.message);
-                }
-            }
-        });
-        setOpponentImages(userImages);
+        fetchImages();
     }, [history]);
 
     return (

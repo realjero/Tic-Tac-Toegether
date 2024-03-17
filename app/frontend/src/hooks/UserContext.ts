@@ -1,18 +1,6 @@
-import { createContext, useContext } from "react";
-import { Socket } from "socket.io-client";
-
-export interface User {
-    username: string;
-    image?: string;
-    elo: number;
-    isAdmin: boolean;
-    gameStats: {
-        totalGames: number;
-        wonGames: number;
-        lostGames: number;
-        drawGames: number;
-    };
-}
+import { createContext, useContext } from 'react';
+import { Socket } from 'socket.io-client';
+import { User } from '../types/types';
 
 interface UserContextType {
     user: User | null;
@@ -31,5 +19,3 @@ export const useUser = (): UserContextType => {
     }
     return context;
 };
-
-

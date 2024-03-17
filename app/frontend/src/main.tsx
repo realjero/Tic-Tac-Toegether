@@ -5,10 +5,10 @@ import './index.css';
 import { RouterProvider, createBrowserRouter } from 'react-router-dom';
 import ErrorPage from './pages/ErrorPage.tsx';
 import Home from './pages/Home.tsx';
-import Profile from './pages/Profile.tsx';
 import Game from './pages/Game.tsx';
 import ProtectedRoute from './components/ProtectedRoute.tsx';
 import Admin from './pages/Admin.tsx';
+import Profile from './pages/Profile.tsx';
 
 const router = createBrowserRouter([
     {

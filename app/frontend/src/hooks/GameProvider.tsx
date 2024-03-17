@@ -1,28 +1,9 @@
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { GameContext } from './GameContext';
 import { useNavigate } from 'react-router-dom';
 import { useModal } from './ModalContext';
 import { useUser } from './UserContext';
-
-export interface GameData {
-    gameId: string;
-    ownSymbol: string;
-    opponentUsername: string;
-    opponentElo: number;
-    opponentSymbol: string;
-    startingPlayer: string;
-}
-
-export interface GameState {
-    winner?: boolean;
-    youNewElo: number;
-    oppNewElo: number;
-}
-
-export interface Board {
-    board: string[][];
-    nextTurn?: string;
-}
+import { Board, ChatItem, GameData, GameState } from '../types/types';
 
 const initialBoard: Board = {
     board: [
@@ -33,43 +14,38 @@ const initialBoard: Board = {
     nextTurn: undefined
 };
 
-export interface ChatData {
-    message: string;
-    sender: string;
-    timestamp: Date;
-}
-
 export const GameProvider = ({ children }: { children: React.ReactNode }) => {
     const navigate = useNavigate();
     const { closeModal } = useModal();
     const [gameData, setGameData] = useState<GameData | undefined>();
     const { socket, fetchUser } = useUser();
-    const [chat, setChat] = useState<ChatData[]>([]);
+    const [chat, setChat] = useState<ChatItem[]>([]);
 
-    const [board, setBoard] = useState(initialBoard);
+    const [board, setBoard] = useState<Board>(initialBoard);
     const [gameState, setGameState] = useState<GameState | undefined>();
 
     const setPiece = (x: number, y: number) => {
         socket.emit('game.move', { gameId: gameData?.gameId, move: { x, y } });
-        console.log(`Move made at (${x}, ${y}) for game ${gameData}`);
     };
 
     const joinQueue = () => {
+        socket.connect();
         socket.emit('queue');
-        socket.on('queue', (data: { status: string; data: string }) => {
-            console.log(data);
-        });
+        socket.on('queue', () => {});
     };
 
     const leaveQueue = () => {
         socket.off('queue');
+        socket.disconnect();
     };
 
-    const resetGame = () => {
+    const resetGame = useCallback(() => {
         setBoard(initialBoard);
         setGameData(undefined);
         setGameState(undefined);
-    };
+        setChat([]);
+        socket.disconnect();
+    }, [socket]);
 
     const sendChat = (message: string) => {
         socket.emit('game.chat', { message: message });
@@ -84,8 +60,6 @@ export const GameProvider = ({ children }: { children: React.ReactNode }) => {
             opponentSymbol: string;
             startingPlayer: string;
         }) => {
-            console.log(data);
-
             navigate('/play');
             closeModal();
 
@@ -104,7 +78,6 @@ export const GameProvider = ({ children }: { children: React.ReactNode }) => {
             newXElo: number;
             newOElo: number;
         }) => {
-            console.log(data);
             setGameState({
                 winner: data.winner ? gameData?.ownSymbol === data.winner : undefined,
                 youNewElo: gameData?.ownSymbol === 'X' ? data.newXElo : data.newOElo,
@@ -115,24 +88,7 @@ export const GameProvider = ({ children }: { children: React.ReactNode }) => {
             fetchUser();
         };
 
-        const handleGameAbort = (data: {
-            winner: string;
-            gameState: string;
-            newXElo: number;
-            newOElo: number;
-        }) => {
-            console.log(data);
-            setGameState({
-                winner: data.winner ? gameData?.ownSymbol === data.winner : undefined,
-                youNewElo: gameData?.ownSymbol === 'X' ? data.newXElo : data.newOElo,
-                oppNewElo: gameData?.opponentSymbol === 'X' ? data.newXElo : data.newOElo
-            });
-            socket.off('queue');
-            socket.off('match-found');
-            fetchUser();
-        };
-
-        const handleChatReceived = (data: ChatData) => {
+        const handleChatReceived = (data: ChatItem) => {
             setChat((chat) => [
                 ...chat,
                 { message: data.message, sender: data.sender, timestamp: new Date(data.timestamp) }
@@ -142,14 +98,14 @@ export const GameProvider = ({ children }: { children: React.ReactNode }) => {
         socket.on('match-found', handleMatchFound);
         socket.on('game.gameboard', handleGameBoardUpdate);
         socket.on('game.gameend', handleGameEnd);
-        socket.on('game.abort', handleGameAbort);
+        socket.on('game.abort', handleGameEnd);
         socket.on('game.chat', handleChatReceived);
 
         return () => {
             socket.off('match-found', handleMatchFound);
             socket.off('game.gameboard', handleGameBoardUpdate);
             socket.off('game.gameend', handleGameEnd);
-            socket.off('game.abort', handleGameAbort);
+            socket.off('game.abort', handleGameEnd);
             socket.off('game.chat', handleChatReceived);
         };
     }, [navigate, closeModal, gameData, socket, fetchUser]);
